@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Davra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #17181C;
+    --bg-2: #1E1F26;
+    --surface: #1C1D24;
+    --surface-2: #23242C;
+    --bubble-other: #F7F8FA;
+    --bubble-other-text: #17181C;
+    --border: rgba(247,248,250,0.08);
+    --text: #F7F8FA;
+    --text-dim: #747782;
+    --accent: #635BFF;
+    --accent-2: #4C7CFF;
+    --coral: #FF6B6B;
+    --mint: #22C55E;
+    --danger: #FF6B6B;
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+  h1,h2,h3, .display { font-family: 'Inter', -apple-system, sans-serif; font-weight:800; letter-spacing:-0.02em; }
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 20px 10px;
+    position: sticky; top:0; z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(23,24,28,0.85);
+  }
+  #topbar .brand{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:20px; letter-spacing:-0.01em; color: var(--accent); }
+  #topbar .brand .dot{
+    width:22px; height:22px; border-radius:7px; flex-shrink:0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    transform: rotate(45deg);
+    box-shadow: 0 3px 10px rgba(99,91,255,0.35);
+    position:relative;
+  }
+  #topbar .brand .dot::after{
+    content:''; position:absolute; inset:5px; border-radius:4px; background: var(--bg);
+  }
+  #topbar .topbarActions{ display:flex; align-items:center; gap:6px; }
+  .iconBtn{
+    width:36px; height:36px; border-radius:50%; border:none; background: var(--surface-2);
+    color: var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex-shrink:0; transition: background .12s;
+  }
+  .iconBtn:hover{ background: rgba(99,91,255,0.18); color: var(--accent); }
+  .iconBtn svg{ width:17px; height:17px; }
+  .hidden{ display:none !important; }
+
+  /* ---------- Search row + filter chips ---------- */
+  .searchRow{ padding: 8px 20px 10px; position: sticky; top: 61px; z-index: 18; background: var(--bg); }
+  .searchRow input{
+    width:100%; background: var(--surface-2); border:1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 10px 16px; font-family:inherit; font-size:14px; outline:none;
+  }
+  .searchRow input::placeholder{ color: var(--text-dim); }
+  .searchRow input:focus{ border-color: var(--accent); }
+  .chipsRow{ display:flex; gap:8px; padding: 0 20px 12px; overflow-x:auto; scrollbar-width:none; }
+  .chipsRow::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex-shrink:0; background: var(--surface-2); border:1px solid var(--border); color: var(--text-dim);
+    font-family:inherit; font-weight:600; font-size:13px; padding: 8px 15px; border-radius:999px; cursor:pointer;
+    white-space:nowrap; transition: background .12s, color .12s;
+  }
+  .chip.active{ background: var(--accent); color:#fff; border-color: var(--accent); }
+
+  /* ---------- Bottom tab bar ---------- */
+  #bottomNav{
+    display:flex; align-items:center; justify-content:space-around;
+    position: fixed; bottom:0; left:0; right:0; z-index: 25;
+    background: rgba(23,24,28,0.94); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 8px 6px max(8px, env(safe-area-inset-bottom));
+    width:100%;
+  }
+  .navTab{
+    background:none; border:none; color: var(--text-dim); font-family:inherit; font-weight:600; font-size:10.5px;
+    padding: 4px 10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px;
+    flex:1; max-width:100px;
+  }
+  .navTab svg{ width:22px; height:22px; }
+  .navTab.active{ color: var(--accent); }
+
+  /* ---------- Auth screens ---------- */
+  #authWrap{
+    flex:1; display:flex; align-items:center; justify-content:center; padding: 32px 20px;
+  }
+  #authCard{
+    width: 100%; max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 28px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  #authCard::before{
+    content:''; position:absolute; top:-60px; right:-60px; width:180px; height:180px; border-radius:50%;
+    background: radial-gradient(circle, rgba(99,91,255,0.22), transparent 70%);
+    pointer-events:none;
+  }
+  .authTitle{ font-size: 30px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
+  .authSub{ color: var(--text-dim); font-size: 14px; margin-bottom: 26px; line-height:1.55; }
+
+  #authLogoWrap{ display:flex; justify-content:center; margin-bottom:18px; }
+  #authLogo{
+    width:64px; height:64px; border-radius:20px; flex-shrink:0; position:relative;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    transform: rotate(45deg);
+    box-shadow: 0 10px 30px rgba(99,91,255,0.4);
+  }
+  #authLogo::after{ content:''; position:absolute; inset:15px; border-radius:9px; background: var(--surface); }
+
+  #authDivider{ text-align:center; margin: 22px 0 16px; position:relative; color: var(--text-dim); font-size:12px; }
+  #authDivider::before{ content:''; position:absolute; top:50%; left:0; right:0; height:1px; background: var(--border); }
+  #authDivider span{ position:relative; background: var(--surface); padding: 0 12px; }
+  #authSocialRow{ display:flex; gap:10px; }
+  .socialBtn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    padding: 11px 8px; border-radius: 999px; border:1px solid var(--border); background: var(--bg-2);
+    color: var(--text); font-weight:600; font-size: 13px; cursor:pointer; font-family:inherit;
+  }
+  .socialBtn:hover{ border-color: var(--accent); }
+
+  .field{ margin-bottom: 14px; }
+  .field label{ display:block; font-size: 12.5px; font-weight:600; color: var(--text-dim); margin-bottom:6px; }
+  .field input, .field textarea{
+    width:100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14.5px; font-family:inherit;
+    outline: none; transition: border-color .15s;
+  }
+  .field input:focus, .field textarea:focus{ border-color: var(--accent); }
+  .field textarea{ resize:none; min-height: 74px; }
+
+  .primaryBtn{
+    width:100%; padding: 13px; border:none; border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:#FFFFFF; font-weight:700; font-size:15px; cursor:pointer; font-family:inherit;
+    margin-top: 6px;
+    box-shadow: 0 8px 22px rgba(99,91,255,0.22);
+    transition: transform .12s, box-shadow .12s;
+  }
+  .primaryBtn:hover{ transform: translateY(-1px); box-shadow: 0 10px 26px rgba(99,91,255,0.3); }
+  .primaryBtn:active{ transform: translateY(0); }
+  .primaryBtn:disabled{ opacity:0.55; cursor:default; transform:none; }
+
+  .switchLine{ text-align:center; margin-top:20px; font-size:13.5px; color: var(--text-dim); }
+  .switchLine button{ background:none; border:none; color: var(--accent); font-weight:600; cursor:pointer; font-size:13.5px; font-family:inherit; padding:0; }
+
+  .errBox{ background: rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.3); color:#FFB3B3; font-size:13px; padding:10px 12px; border-radius: var(--radius-sm); margin-bottom:14px; display:none; line-height:1.4; }
+  .errBox.show{ display:block; }
+
+  /* ---------- Chat list ---------- */
+  #chatsView{ width:100%; max-width: 560px; }
+  .chatRow{
+    display:flex; align-items:center; gap:12px; padding: 13px 10px; border-radius: var(--radius-sm);
+    cursor:pointer; transition: background .12s;
+  }
+  .chatRow:hover{ background: var(--surface); }
+  .chatAvatar{
+    width:46px; height:46px; border-radius:50%; flex-shrink:0;
+    background: linear-gradient(135deg, var(--coral), var(--accent));
+    display:flex; align-items:center; justify-content:center; font-size:21px;
+  }
+  .chatRowBody{ flex:1; min-width:0; }
+  .chatRowTop{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .chatRowName{ font-weight:700; font-size:14.5px; }
+  .chatRowTime{ font-size:11.5px; color: var(--text-dim); flex-shrink:0; }
+  .chatRowMsg{ font-size:13px; color: var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  #chatsEmpty{ text-align:center; color: var(--text-dim); font-size:13.5px; padding: 40px 20px; line-height:1.6; }
+
+  /* ---------- User picker modal ---------- */
+  #pickerOverlay{
+    position:fixed; inset:0; background:rgba(10,11,26,0.7); backdrop-filter: blur(3px);
+    display:flex; align-items:flex-end; justify-content:center; z-index: 40;
+  }
+  #pickerOverlay.hidden{ display:none; }
+  #pickerSheet{
+    width:100%; max-width: 480px; background: var(--surface); border:1px solid var(--border);
+    border-radius: 22px 22px 0 0; padding: 20px 18px 24px; max-height: 74vh; display:flex; flex-direction:column;
+  }
+  #pickerHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  #pickerHead h3{ font-size:17px; font-weight:700; }
+  #pickerClose{ background:none; border:none; color: var(--text-dim); font-size:20px; cursor:pointer; line-height:1; padding:4px; }
+  #pickerSearch{
+    width:100%; background: var(--bg-2); border:1px solid var(--border); color:var(--text);
+    border-radius: var(--radius-sm); padding: 10px 13px; font-family:inherit; font-size:14px; outline:none; margin-bottom:12px;
+  }
+  #pickerList{ overflow-y:auto; flex:1; }
+  .pickerRow{ display:flex; align-items:center; gap:11px; padding: 11px 6px; border-radius: var(--radius-sm); cursor:pointer; }
+  .pickerRow:hover{ background: var(--bg-2); }
+  .pickerAvatar{ width:38px; height:38px; border-radius:50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  .pickerName{ font-weight:600; font-size:14px; }
+  #pickerEmpty{ text-align:center; color:var(--text-dim); font-size:13px; padding: 24px; }
+
+  /* ---------- Chat detail view ---------- */
+  #chatDetail{
+    position:fixed; inset:0; background: var(--bg); z-index:30; display:flex; flex-direction:column;
+  }
+  #chatDetail.hidden{ display:none; }
+  #chatDetailHead{
+    display:flex; align-items:center; gap:12px; padding: 14px 16px;
+    border-bottom:1px solid var(--border); background: rgba(23,24,28,0.92); backdrop-filter: blur(10px);
+  }
+  #chatBackBtn{ background:none; border:none; color: var(--text); font-size:20px; cursor:pointer; padding:4px 6px 4px 0; }
+  #chatDetailAvatar{ width:38px; height:38px; border-radius:50%; background: linear-gradient(135deg, var(--coral), var(--accent)); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  #chatDetailName{ font-weight:700; font-size:15px; }
+  #chatDetailStatus{ font-size:11.5px; color: var(--text-dim); margin-top:1px; display:flex; align-items:center; gap:5px; }
+  #chatDetailStatus .onlineDot{ width:7px; height:7px; border-radius:50%; background: var(--mint); box-shadow:0 0 6px var(--mint); }
+  #chatDetailStatus.typing{ color: var(--accent); font-weight:600; }
+
+  .chatRowAvatarWrap{ position:relative; flex-shrink:0; }
+  .rowOnlineDot{
+    position:absolute; bottom:0; right:0; width:11px; height:11px; border-radius:50%;
+    background: var(--mint); border:2px solid var(--surface); box-shadow:0 0 5px var(--mint);
+  }
+
+  #messagesArea{ flex:1; overflow-y:auto; padding: 16px; display:flex; flex-direction:column; gap:8px; }
+  .msgRow{ display:flex; }
+  .msgRow.me{ justify-content:flex-end; }
+  .msgBubble{
+    max-width: 76%; padding: 9px 13px; border-radius: 16px; font-size:14px; line-height:1.45; white-space:pre-wrap; word-break:break-word;
+  }
+  .msgRow:not(.me) .msgBubble{ background: var(--bubble-other); color: var(--bubble-other-text); border-bottom-left-radius:4px; }
+  .msgRow.me .msgBubble{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#FFFFFF; border-bottom-right-radius:4px; }
+  .msgTime{ font-size:10px; opacity:0.6; margin-top:3px; display:block; }
+  .msgRow:not(.me) .msgTime{ opacity:0.5; }
+
+  #chatEmptyState{ text-align:center; color: var(--text-dim); font-size:13px; margin:auto; padding: 20px; line-height:1.6; }
+
+  #messageInputBar{
+    display:flex; gap:10px; padding: 12px 14px; border-top:1px solid var(--border);
+    background: rgba(23,24,28,0.92); backdrop-filter: blur(10px);
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  #messageInput{
+    flex:1; background: var(--bg-2); border:1px solid var(--border); color:var(--text);
+    border-radius: 999px; padding: 11px 16px; font-family:inherit; font-size:14.5px; outline:none;
+  }
+  #messageInput:focus{ border-color: var(--accent); }
+  #sendMsgBtn{
+    width:42px; height:42px; border-radius:50%; border:none; flex-shrink:0; cursor:pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#FFFFFF; font-size:17px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #sendMsgBtn:disabled{ opacity:0.4; cursor:default; }
+
+
+  #appWrap{ flex:1; display:flex; flex-direction:column; align-items:center; padding: 12px 18px calc(84px + env(safe-area-inset-bottom)); }
+  #profileCard{
+    width:100%; max-width: 480px;
+    background: linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 130%);
+    border:1px solid var(--border);
+    border-radius: 24px;
+    padding: 30px 26px;
+    position: relative;
+    overflow:hidden;
+  }
+  #profileCard::after{
+    content:''; position:absolute; bottom:-70px; left:-40px; width:200px; height:200px; border-radius:50%;
+    background: radial-gradient(circle, rgba(99,91,255,0.10), transparent 70%);
+    pointer-events:none;
+  }
+  .avatarRow{ display:flex; align-items:center; gap:16px; margin-bottom: 22px; }
+  #avatarBig{
+    width: 68px; height:68px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display:flex; align-items:center; justify-content:center;
+    font-size: 30px; flex-shrink:0;
+    box-shadow: 0 6px 18px rgba(99,91,255,0.25);
+  }
+  #displayNameView{ font-family:'Inter'; font-weight:800; font-size: 21px; font-weight:700; letter-spacing:-0.01em; }
+  #handleView{ color: var(--text-dim); font-size: 13.5px; margin-top:2px; }
+  .usernameErr{ font-size:12px; color: var(--danger); margin-top:5px; min-height:15px; }
+  .usernamePrefix{ position:relative; }
+  .usernamePrefix .atSign{ position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text-dim); font-size:14.5px; pointer-events:none; }
+  .usernamePrefix input{ padding-left:24px !important; }
+
+  /* ---------- Reply preview (inside bubble) ---------- */
+  .replyQuote{
+    border-left: 3px solid var(--accent); padding: 4px 9px; margin-bottom:6px; border-radius:4px;
+    background: rgba(23,24,28,0.06); font-size:12.5px;
+  }
+  .msgRow.me .replyQuote{ background: rgba(255,255,255,0.16); border-left-color: rgba(255,255,255,0.6); }
+  .replyQuote .rqSender{ font-weight:700; opacity:0.85; }
+  .replyQuote .rqText{ opacity:0.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+
+  /* ---------- Reactions row ---------- */
+  .reactionsRow{ display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
+  .reactionPill{
+    background: rgba(23,24,28,0.07); border:1px solid rgba(23,24,28,0.12); border-radius:999px;
+    padding:1px 7px; font-size:11.5px; display:flex; align-items:center; gap:3px;
+  }
+  .reactionPill.mine{ border-color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.18); }
+  .msgRow.me .reactionPill{ background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.35); }
+  .msgRow.me .reactionPill.mine{ border-color: #fff; background: rgba(255,255,255,0.3); }
+  .editedTag{ font-size:10px; opacity:0.55; margin-left:5px; }
+
+  /* ---------- Composer context bar (reply/edit) ---------- */
+  #composerContextBar{
+    display:none; align-items:center; gap:10px; padding: 8px 14px;
+    background: var(--surface-2); border-top:1px solid var(--border); font-size:12.5px;
+  }
+  #composerContextBar.show{ display:flex; }
+  #composerContextBar .ctxIcon{ font-size:14px; flex-shrink:0; }
+  #composerContextBar .ctxBody{ flex:1; min-width:0; }
+  #composerContextBar .ctxLabel{ font-weight:700; color: var(--accent); }
+  #composerContextBar .ctxText{ color: var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #composerContextCancel{ background:none; border:none; color: var(--text-dim); font-size:18px; cursor:pointer; flex-shrink:0; }
+
+  /* ---------- Message action sheet ---------- */
+  #msgActionOverlay{
+    position:fixed; inset:0; background:rgba(10,11,26,0.7); backdrop-filter: blur(3px);
+    display:flex; align-items:flex-end; justify-content:center; z-index: 50;
+  }
+  #msgActionOverlay.hidden{ display:none; }
+  #msgActionSheet{
+    width:100%; max-width: 480px; background: var(--surface); border:1px solid var(--border);
+    border-radius: 22px 22px 0 0; padding: 18px 18px 26px;
+  }
+  #reactionRow{ display:flex; justify-content:space-between; margin-bottom:14px; padding:0 4px; }
+  .reactionOpt{
+    width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:22px; background: var(--bg-2); cursor:pointer; border:none;
+  }
+  .reactionOpt:active{ transform: scale(1.15); }
+  .sheetAction{
+    display:flex; align-items:center; gap:12px; padding:12px 8px; cursor:pointer; border-radius: var(--radius-sm);
+    font-size:14.5px; font-weight:600; color: var(--text);
+  }
+  .sheetAction:hover{ background: var(--bg-2); }
+  .sheetAction.danger{ color: var(--danger); }
+
+
+
+  .emojiPicker{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 4px; }
+  .emojiOpt{
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background: var(--bg-2); border:1.5px solid transparent; font-size:18px; cursor:pointer;
+  }
+  .emojiOpt.active{ border-color: var(--accent); background: rgba(99,91,255,0.12); }
+
+  .statRow{ display:flex; gap: 22px; margin: 18px 0 22px; }
+  .statItem{ text-align:left; }
+  .statItem b{ font-family:'Inter'; font-weight:800; font-size:18px; display:block; }
+  .statItem span{ color: var(--text-dim); font-size:12px; }
+
+  .sectionLabel{ font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color: var(--text-dim); font-weight:600; margin: 20px 0 8px; }
+  #bioView{ font-size: 14.5px; line-height:1.6; color: var(--text); }
+  #bioView.empty{ color: var(--text-dim); font-style: italic; }
+
+  .btnRow{ display:flex; gap:10px; margin-top: 22px; }
+  .ghostBtn{
+    flex:1; padding: 11px 8px; border-radius: 999px; border:1px solid var(--border); background:none;
+    color: var(--text); font-weight:600; font-size: 13.5px; cursor:pointer; font-family:inherit;
+    white-space: nowrap;
+  }
+  .ghostBtn:hover{ border-color: var(--accent); color: var(--accent); }
+  .ghostBtn.coral:hover{ border-color: var(--coral); color: var(--coral); }
+
+  #editArea{ margin-top: 8px; }
+
+  .comingSoon{
+    width:100%; max-width:480px; margin-top:18px;
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    padding: 20px; text-align:center; color: var(--text-dim); font-size: 13.5px; line-height:1.6;
+  }
+  .comingSoon b{ color: var(--text); display:block; margin-bottom:4px; font-family:'Inter'; font-weight:800; font-size:14.5px; }
+
+  /* ---------- Kontaktlar ---------- */
+  #contactsView, #callsView, #settingsView{ width:100%; max-width: 560px; }
+  .viewSearchInput{
+    width:100%; background: var(--surface-2); border:1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 10px 16px; font-family:inherit; font-size:14px; outline:none; margin-bottom:10px;
+  }
+  .viewSearchInput::placeholder{ color: var(--text-dim); }
+  .viewSearchInput:focus{ border-color: var(--accent); }
+  .letterHead{ font-size:12px; font-weight:700; color: var(--accent); padding: 12px 10px 4px; letter-spacing:0.06em; }
+  #contactsEmpty{ text-align:center; color: var(--text-dim); font-size:13.5px; padding: 40px 20px; line-height:1.6; }
+
+  /* ---------- Qo'ng'iroqlar ---------- */
+  #callsEmpty{ text-align:center; color: var(--text-dim); font-size:13.5px; padding: 60px 24px; line-height:1.6; }
+  #callsEmpty b{ color: var(--text); display:block; margin-bottom:6px; font-size:15px; font-weight:800; }
+  .emptyIconWrap{
+    width:60px; height:60px; border-radius:50%; margin: 0 auto 16px; background: var(--surface-2);
+    display:flex; align-items:center; justify-content:center; color: var(--accent);
+  }
+  .emptyIconWrap svg{ width:26px; height:26px; }
+
+  /* ---------- Sozlamalar ---------- */
+  #settingsProfileRow{
+    display:flex; align-items:center; gap:14px; padding: 12px 10px; margin-bottom: 18px;
+    border-radius: var(--radius); background: var(--surface); border:1px solid var(--border); cursor:pointer;
+  }
+  #settingsAvatar{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display:flex; align-items:center; justify-content:center; font-size:23px;
+  }
+  #settingsName{ font-weight:700; font-size:16px; }
+  #settingsHandle{ color: var(--text-dim); font-size:13px; margin-top:2px; }
+  .settingsGroup{
+    background: var(--surface); border:1px solid var(--border); border-radius: var(--radius);
+    margin-bottom:16px; overflow:hidden;
+  }
+  .settingsRow{
+    display:flex; align-items:center; gap:13px; padding: 12px 12px; cursor:pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .settingsRow:last-child{ border-bottom:none; }
+  .settingsRow:hover{ background: var(--surface-2); }
+  .settingIcon{
+    width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .settingIcon svg{ width:17px; height:17px; }
+  .settingBody{ flex:1; min-width:0; }
+  .settingTitle{ font-weight:600; font-size:14.5px; }
+  .settingSub{ font-size:12px; color: var(--text-dim); margin-top:1px; }
+  .chevron{ color: var(--text-dim); font-size:18px; flex-shrink:0; }
+
+  /* ---------- Mening sahifam (to'liq ekran) ---------- */
+  #profileView{ position:fixed; inset:0; background: var(--bg); z-index:35; display:flex; flex-direction:column; }
+  #profileView.hidden{ display:none; }
+  #profileHead{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 14px 16px;
+    border-bottom:1px solid var(--border); background: rgba(23,24,28,0.92); backdrop-filter: blur(10px);
+  }
+  #profileBackBtn{ background:none; border:none; color: var(--text); font-size:20px; cursor:pointer; padding:4px 6px; }
+  #profileHeadTitle{ font-weight:700; font-size:15.5px; flex:1; }
+  #profileEditToggleBtn{ background:none; border:none; color: var(--accent); cursor:pointer; padding:4px; }
+  #profileEditToggleBtn svg{ width:19px; height:19px; }
+  #profileScroll{ flex:1; overflow-y:auto; display:flex; flex-direction:column; align-items:center; padding: 24px 18px 40px; }
+
+  #loadingScreen{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background: var(--bg); z-index:50; flex-direction:column; gap:14px;
+  }
+  .spinner{ width:30px; height:30px; border-radius:50%; border:3px solid var(--border); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #loadingScreen span{ color: var(--text-dim); font-size:13px; }
+
+  @media (max-width:420px){
+    .authTitle{ font-size:24px; }
+    #authCard{ padding: 30px 22px 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loadingScreen"><div class="spinner"></div><span>Yuklanmoqda...</span></div>
+
+<div id="topbar" class="hidden">
+  <div class="brand" id="topbarBrand"><span class="dot"></span><span id="topbarTitle">DAVRA</span></div>
+  <div class="topbarActions">
+    <button class="iconBtn hidden" id="topbarSearchBtn" title="Qidirish">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+    <button class="iconBtn hidden" id="topbarAddBtn" title="Yangi suhbat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+</div>
+<div class="searchRow hidden" id="topSearchRow">
+  <input type="text" id="topSearchInput" placeholder="Qidirish">
+</div>
+<div class="chipsRow hidden" id="topChipsRow">
+  <button class="chip active" data-chip="all">Barchasi</button>
+  <button class="chip" data-chip="people">Odamlar</button>
+  <button class="chip" data-chip="groups">Guruhlar</button>
+  <button class="chip" data-chip="channels">Kanallar</button>
+</div>
+
+<!-- AUTH SCREENS -->
+<div id="authWrap" class="hidden">
+  <div id="authCard">
+    <div id="authLogoWrap"><div id="authLogo"></div></div>
+    <h1 class="authTitle" id="authTitle" style="text-align:center;">Davra</h1>
+    <p class="authSub" id="authSub" style="text-align:center;">Xush kelibsiz!<br>Davra'da muloqot yanada yangi davrasi.</p>
+
+    <div class="errBox" id="authErr"></div>
+
+    <div class="field" id="nameFieldWrap" style="display:none;">
+      <label>Ismingiz</label>
+      <input type="text" id="regName" placeholder="Masalan: Aziza">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="email@misol.com">
+    </div>
+    <div class="field">
+      <label>Parol</label>
+      <input type="password" id="authPassword" placeholder="Kamida 6 ta belgi">
+    </div>
+
+    <button class="primaryBtn" id="authSubmitBtn">Davom etish</button>
+
+    <div class="switchLine">
+      <span id="switchText">Hisobingiz yo'qmi?</span>
+      <button id="switchBtn">Ro'yxatdan o'tish</button>
+    </div>
+
+    <div id="authDivider"><span>Yoki boshqa usulda kirish</span></div>
+    <div id="authSocialRow">
+      <button class="socialBtn" id="googleAuthBtn">
+        <svg viewBox="0 0 48 48" width="17" height="17"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 16.3 3 9.7 7.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.6C29.6 36.3 27 37 24 37c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.6 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.6 5.6C41.7 36.1 45 30.6 45 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+        Google bilan
+      </button>
+      <button class="socialBtn" id="appleAuthBtn">
+        <svg viewBox="0 0 384 512" width="15" height="15" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141 4 184.8 4 273.1c0 25.9 4.7 52.7 14.2 80.4 12.6 36.7 58.3 126.7 106 125.2 25-.6 42.7-17.8 75.3-17.8 31.7 0 48 17.8 75.9 17.8 48.2-.7 89.5-82.5 101.5-119.3-64.5-30.4-58.2-89.2-58.2-90.7zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+        Apple bilan
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appWrap" class="hidden">
+
+  <div id="chatsView">
+    <div id="chatsList"></div>
+    <div id="chatsEmpty" class="hidden">Hali suhbatlaringiz yo'q.<br>Yuqoridagi ➕ tugma orqali birinchi suhbatni boshlang! 💬</div>
+  </div>
+
+  <div id="contactsView" class="hidden">
+    <div class="sectionLabel" style="margin:2px 0 10px;">Kontaktlar</div>
+    <input type="text" id="contactsSearch" class="viewSearchInput" placeholder="Qidirish">
+    <div id="contactsList"></div>
+    <div id="contactsEmpty" class="hidden">Hozircha boshqa foydalanuvchi topilmadi.</div>
+  </div>
+
+  <div id="callsView" class="hidden">
+    <div class="chipsRow" style="padding:0 0 14px;">
+      <button class="chip active" data-callchip="all">Barchasi</button>
+      <button class="chip" data-callchip="audio">Ovozli</button>
+      <button class="chip" data-callchip="video">Video</button>
+    </div>
+    <div id="callsEmpty">
+      <div class="emptyIconWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </div>
+      <b>Qo'ng'iroqlar tarixi bo'sh</b>
+      Davra orqali ovozli va videoqo'ng'iroqlar tez orada qo'shiladi.
+    </div>
+  </div>
+
+  <div id="settingsView" class="hidden">
+    <div id="settingsProfileRow">
+      <div id="settingsAvatar">🙂</div>
+      <div style="flex:1; min-width:0;">
+        <div id="settingsName">—</div>
+        <div id="settingsHandle">—</div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+
+    <div class="settingsGroup">
+      <div class="settingsRow" data-setting="account">
+        <div class="settingIcon" style="background:rgba(99,91,255,0.16); color:var(--accent);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Hisob</div><div class="settingSub">Maxfiylik, xavfsizlik, raqam</div></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settingsRow" data-setting="notifications">
+        <div class="settingIcon" style="background:rgba(255,107,107,0.16); color:var(--coral);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Bildirishnomalar</div><div class="settingSub">Tovushlar, tebranish, ogohlantirishlar</div></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settingsRow" data-setting="chats">
+        <div class="settingIcon" style="background:rgba(76,124,255,0.16); color:var(--accent-2);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Chatlar</div><div class="settingSub">Mavzu, fon, chat sozlamalari</div></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settingsRow" data-setting="storage">
+        <div class="settingIcon" style="background:rgba(34,197,94,0.16); color:var(--mint);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Ma'lumot va xotira</div><div class="settingSub">Fayllar, saqlash, tarmoq</div></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settingsRow" data-setting="devices">
+        <div class="settingIcon" style="background:rgba(247,248,250,0.14); color:var(--text);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Qurilmalar</div><div class="settingSub">Ulangan qurilmalar</div></div>
+        <span class="chevron">›</span>
+      </div>
+    </div>
+
+    <div class="settingsGroup">
+      <div class="settingsRow" data-setting="help">
+        <div class="settingIcon" style="background:rgba(76,124,255,0.16); color:var(--accent-2);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Yordam</div><div class="settingSub">Yordam markazi, bog'lanish</div></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settingsRow" data-setting="about">
+        <div class="settingIcon" style="background:rgba(99,91,255,0.16); color:var(--accent);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle">Davra haqida</div><div class="settingSub">Versiya 1.0.0</div></div>
+        <span class="chevron">›</span>
+      </div>
+    </div>
+
+    <div class="settingsGroup">
+      <div class="settingsRow" id="settingsLogoutBtn">
+        <div class="settingIcon" style="background:rgba(255,107,107,0.16); color:var(--coral);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+        <div class="settingBody"><div class="settingTitle" style="color:var(--coral);">Chiqish</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Mening sahifam (to'liq ekran profil) -->
+<div id="profileView" class="hidden">
+  <div id="profileHead">
+    <button id="profileBackBtn">←</button>
+    <div id="profileHeadTitle">Mening sahifam</div>
+    <button id="profileEditToggleBtn" title="Tahrirlash">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </button>
+  </div>
+  <div id="profileScroll">
+  <div id="profileCard">
+    <div id="viewMode">
+      <div class="avatarRow" style="flex-direction:column; text-align:center; gap:10px;">
+        <div id="avatarBig">🙂</div>
+        <div>
+          <div id="displayNameView">—</div>
+          <div id="handleView">—</div>
+        </div>
+      </div>
+
+      <div class="statRow" style="justify-content:center;">
+        <div class="statItem"><b id="joinedStat">—</b><span>a'zo bo'lgan</span></div>
+      </div>
+
+      <div class="sectionLabel">Bio</div>
+      <div id="bioView" class="empty">Hali bio qo'shilmagan.</div>
+
+      <div class="btnRow">
+        <button class="ghostBtn" id="editProfileBtn">✏️ Profilni tahrirlash</button>
+      </div>
+    </div>
+
+    <div id="editArea" class="hidden">
+      <div class="sectionLabel" style="margin-top:0;">Avatar tanlang</div>
+      <div class="emojiPicker" id="emojiPicker"></div>
+
+      <div class="field" style="margin-top:18px;">
+        <label>Ism</label>
+        <input type="text" id="editName" maxlength="40">
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <div class="usernamePrefix">
+          <span class="atSign">@</span>
+          <input type="text" id="editUsername" maxlength="20" placeholder="username">
+        </div>
+        <div class="usernameErr" id="usernameErr"></div>
+      </div>
+      <div class="field">
+        <label>Bio</label>
+        <textarea id="editBio" maxlength="160" placeholder="O'zingiz haqingizda qisqacha..."></textarea>
+      </div>
+
+      <div class="btnRow">
+        <button class="ghostBtn" id="cancelEditBtn">Bekor qilish</button>
+        <button class="primaryBtn" id="saveProfileBtn" style="margin-top:0;">Saqlash</button>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div id="bottomNav" class="hidden">
+  <button class="navTab active" id="tabChatsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    Chatlar
+  </button>
+  <button class="navTab" id="tabContactsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Kontaktlar
+  </button>
+  <button class="navTab" id="tabCallsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    Qo'ng'iroqlar
+  </button>
+  <button class="navTab" id="tabSettingsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Sozlamalar
+  </button>
+</div>
+
+<!-- Yangi suhbat uchun foydalanuvchi tanlash -->
+<div id="pickerOverlay" class="hidden">
+  <div id="pickerSheet">
+    <div id="pickerHead">
+      <h3>Kim bilan suhbat boshlaymiz?</h3>
+      <button id="pickerClose">✕</button>
+    </div>
+    <input type="text" id="pickerSearch" placeholder="Ism bo'yicha qidirish...">
+    <div id="pickerList"></div>
+    <div id="pickerEmpty" class="hidden">Foydalanuvchi topilmadi.</div>
+  </div>
+</div>
+
+<!-- Chat detail (to'liq ekran) -->
+<div id="chatDetail" class="hidden">
+  <div id="chatDetailHead">
+    <button id="chatBackBtn">←</button>
+    <div id="chatDetailAvatar">🙂</div>
+    <div style="flex:1; min-width:0;">
+      <div id="chatDetailName">—</div>
+      <div id="chatDetailStatus"></div>
+    </div>
+    <button class="iconBtn" id="chatCallBtn" title="Qo'ng'iroq">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+    <button class="iconBtn" id="chatMenuBtn" title="Yana">
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+    </button>
+  </div>
+  <div id="messagesArea">
+    <div id="chatEmptyState" class="hidden">Hali xabar yo'q.<br>Birinchi bo'lib salom bering! 👋</div>
+  </div>
+  <div id="composerContextBar">
+    <span class="ctxIcon" id="ctxIcon">↩️</span>
+    <div class="ctxBody">
+      <div class="ctxLabel" id="ctxLabel">Javob</div>
+      <div class="ctxText" id="ctxText"></div>
+    </div>
+    <button id="composerContextCancel">✕</button>
+  </div>
+  <div id="messageInputBar">
+    <input type="text" id="messageInput" placeholder="Xabar yozing..." maxlength="1000">
+    <button id="sendMsgBtn">➤</button>
+  </div>
+</div>
+
+<!-- Xabar ustida amallar (reply/reaksiya/tahrirlash/o'chirish) -->
+<div id="msgActionOverlay" class="hidden">
+  <div id="msgActionSheet">
+    <div id="reactionRow"></div>
+    <div class="sheetAction" id="actionReply"><span>↩️</span> Javob berish</div>
+    <div class="sheetAction hidden" id="actionEdit"><span>✏️</span> Tahrirlash</div>
+    <div class="sheetAction danger hidden" id="actionDelete"><span>🗑️</span> O'chirish</div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+(function(){
+  // ---------- Firebase konfiguratsiyasi ----------
+  // E'TIBOR: shu firebaseConfig'ni o'zingizning Firebase loyihangiznikiga almashtiring
+  const firebaseConfig = {
+    apiKey: "AIzaSyBYEfB09oYUvcz_q4BoZTjHnVALlttT94g",
+    authDomain: "shaxmat-online-d339e.firebaseapp.com",
+    databaseURL: "https://shaxmat-online-d339e-default-rtdb.firebaseio.com",
+    projectId: "shaxmat-online-d339e",
+    storageBucket: "shaxmat-online-d339e.firebasestorage.app",
+    messagingSenderId: "648385713929",
+    appId: "1:648385713929:web:929b84338715a7c740e5d8"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const rtdb = firebase.database();
+
+  const EMOJIS = ['🙂','😎','🦊','🐼','🐸','🐧','🦄','🌟','🔥','🌈','🎧','⚡'];
+  let selectedEmoji = EMOJIS[0];
+  let isRegisterMode = false;
+  let currentUserDoc = null;
+
+  const $ = id => document.getElementById(id);
+
+  // ---------- Username yordamchi funksiyalari ----------
+  function sanitizeUsername(s){
+    return (s || '').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20);
+  }
+  async function generateUniqueUsername(base){
+    let root = sanitizeUsername(base) || 'user';
+    for (let i = 0; i < 8; i++) {
+      const candidate = i === 0 ? root : (root + i);
+      try {
+        const snap = await db.collection('users').where('username','==',candidate).limit(1).get();
+        if (snap.empty) return candidate;
+      } catch(e) { return root + Date.now().toString().slice(-4); }
+    }
+    return root + Date.now().toString().slice(-4);
+  }
+  async function isUsernameTaken(username, excludeUid){
+    const snap = await db.collection('users').where('username','==',username).limit(1).get();
+    if (snap.empty) return false;
+    let taken = false;
+    snap.forEach(doc => { if (doc.id !== excludeUid) taken = true; });
+    return taken;
+  }
+
+  // ---------- Ekranlarni almashtirish ----------
+  function showScreen(name){
+    $('loadingScreen').classList.add('hidden');
+    $('topbar').classList.toggle('hidden', name==='auth');
+    $('bottomNav').classList.toggle('hidden', name==='auth');
+    $('authWrap').classList.toggle('hidden', name!=='auth');
+    $('appWrap').classList.toggle('hidden', name!=='app');
+    if (name === 'auth') { $('profileView').classList.add('hidden'); }
+  }
+
+  // ---------- Nav tab almashtirish (Chatlar / Kontaktlar / Qo'ng'iroqlar / Sozlamalar) ----------
+  let activeTab = 'chats';
+  function showTab(tab){
+    activeTab = tab;
+    $('tabChatsBtn').classList.toggle('active', tab==='chats');
+    $('tabContactsBtn').classList.toggle('active', tab==='contacts');
+    $('tabCallsBtn').classList.toggle('active', tab==='calls');
+    $('tabSettingsBtn').classList.toggle('active', tab==='settings');
+
+    $('chatsView').classList.toggle('hidden', tab!=='chats');
+    $('contactsView').classList.toggle('hidden', tab!=='contacts');
+    $('callsView').classList.toggle('hidden', tab!=='calls');
+    $('settingsView').classList.toggle('hidden', tab!=='settings');
+
+    $('topbarTitle').textContent = ({chats:'DAVRA', contacts:'Kontaktlar', calls:"Qo'ng'iroqlar", settings:'Sozlamalar'})[tab];
+    $('topbarSearchBtn').classList.toggle('hidden', tab!=='chats');
+    $('topbarAddBtn').classList.toggle('hidden', tab!=='chats');
+    $('topSearchRow').classList.toggle('hidden', tab!=='chats');
+    $('topChipsRow').classList.toggle('hidden', tab!=='chats');
+
+    if (tab === 'contacts') { openContactsTab(); }
+  }
+  $('tabChatsBtn').addEventListener('click', () => showTab('chats'));
+  $('tabContactsBtn').addEventListener('click', () => showTab('contacts'));
+  $('tabCallsBtn').addEventListener('click', () => showTab('calls'));
+  $('tabSettingsBtn').addEventListener('click', () => showTab('settings'));
+
+  // ---------- Mening sahifam: to'liq ekran profil ----------
+  function openMyProfile(){
+    $('profileView').classList.remove('hidden');
+    $('viewMode').classList.remove('hidden');
+    $('editArea').classList.add('hidden');
+  }
+  function closeMyProfile(){
+    $('profileView').classList.add('hidden');
+  }
+  $('settingsProfileRow').addEventListener('click', openMyProfile);
+  $('profileBackBtn').addEventListener('click', closeMyProfile);
+  $('profileEditToggleBtn').addEventListener('click', () => $('editProfileBtn').click());
+
+  // ---------- Sozlamalar qatorlari (hozircha ma'lumot ekrani) ----------
+  document.querySelectorAll('.settingsRow[data-setting]').forEach(row => {
+    row.addEventListener('click', () => alert("Bu bo'lim tez orada qo'shiladi."));
+  });
+  $('settingsLogoutBtn').addEventListener('click', () => auth.signOut());
+
+  // ---------- Filtr chip'lari ----------
+  $('topChipsRow').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    [...$('topChipsRow').children].forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    if (chip.dataset.chip === 'groups' || chip.dataset.chip === 'channels') {
+      alert("Guruh va kanallar tez orada qo'shiladi.");
+    }
+  });
+  $('callsView').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    [...chip.parentElement.children].forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+
+  $('topbarSearchBtn').addEventListener('click', () => $('topSearchInput').focus());
+  $('topSearchInput').addEventListener('input', () => {
+    const q = $('topSearchInput').value.trim().toLowerCase();
+    document.querySelectorAll('#chatsList .chatRow').forEach(row => {
+      const name = (row.dataset.name || '').toLowerCase();
+      row.classList.toggle('hidden', q.length > 0 && !name.includes(q));
+    });
+  });
+
+  $('chatCallBtn').addEventListener('click', () => alert("Qo'ng'iroqlar funksiyasi tez orada qo'shiladi."));
+  $('chatMenuBtn').addEventListener('click', () => alert("Qo'shimcha sozlamalar tez orada qo'shiladi."));
+
+  // ---------- Auth rejimini almashtirish (login <-> register) ----------
+  function setMode(register){
+    isRegisterMode = register;
+    $('authErr').classList.remove('show');
+    $('nameFieldWrap').style.display = register ? 'block' : 'none';
+    $('authTitle').textContent = "Davra";
+    $('authSub').innerHTML = register
+      ? "Boshlaymiz!<br>Davraga qo'shiling, bir necha soniya oladi."
+      : "Xush kelibsiz!<br>Davra'da muloqot yanada yangi davrasi.";
+    $('authSubmitBtn').textContent = register ? "Ro'yxatdan o'tish" : "Davom etish";
+    $('switchText').textContent = register ? "Hisobingiz bormi?" : "Hisobingiz yo'qmi?";
+    $('switchBtn').textContent = register ? "Kirish" : "Ro'yxatdan o'tish";
+  }
+  $('switchBtn').addEventListener('click', () => setMode(!isRegisterMode));
+
+  // ---------- Google / Apple orqali kirish ----------
+  $('googleAuthBtn').addEventListener('click', async () => {
+    $('authErr').classList.remove('show');
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      await auth.signInWithPopup(provider);
+    } catch (e) {
+      if (e && e.code && e.code !== 'auth/popup-closed-by-user') showAuthError('Google orqali kirishda xatolik: ' + e.message);
+    }
+  });
+  $('appleAuthBtn').addEventListener('click', () => {
+    alert("Apple orqali kirish tez orada qo'shiladi.");
+  });
+
+  function showAuthError(msg){
+    $('authErr').textContent = msg;
+    $('authErr').classList.add('show');
+  }
+
+  const FRIENDLY_ERR = {
+    'auth/email-already-in-use': 'Bu email allaqachon ro\'yxatdan o\'tgan. Kirishni sinab ko\'ring.',
+    'auth/invalid-email': 'Email manzili noto\'g\'ri ko\'rinmoqda.',
+    'auth/weak-password': 'Parol juda oddiy. Kamida 6 ta belgi kiriting.',
+    'auth/user-not-found': 'Bunday hisob topilmadi.',
+    'auth/wrong-password': 'Parol noto\'g\'ri.',
+    'auth/invalid-credential': 'Email yoki parol noto\'g\'ri.',
+    'auth/missing-password': 'Parolni kiriting.',
+  };
+
+  // ---------- Ro'yxatdan o'tish / Kirish ----------
+  $('authSubmitBtn').addEventListener('click', async () => {
+    const email = $('authEmail').value.trim();
+    const password = $('authPassword').value;
+    $('authErr').classList.remove('show');
+
+    if (!email || !password) { showAuthError('Email va parolni kiriting.'); return; }
+
+    $('authSubmitBtn').disabled = true;
+    $('authSubmitBtn').textContent = 'Kuting...';
+
+    try {
+      if (isRegisterMode) {
+        const name = $('regName').value.trim();
+        if (!name) { showAuthError('Ismingizni kiriting.'); throw null; }
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const username = await generateUniqueUsername(name);
+        await db.collection('users').doc(cred.user.uid).set({
+          displayName: name,
+          username: username,
+          bio: '',
+          avatarEmoji: EMOJIS[0],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } else {
+        await auth.signInWithEmailAndPassword(email, password);
+      }
+    } catch (e) {
+      if (e && e.code) showAuthError(FRIENDLY_ERR[e.code] || ('Xatolik: ' + e.message));
+    } finally {
+      $('authSubmitBtn').disabled = false;
+      setMode(isRegisterMode);
+    }
+  });
+
+  // ---------- Profilni yuklash va ko'rsatish ----------
+  function fmtDate(ts){
+    if (!ts) return '—';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    const months = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function renderProfile(uid, data){
+    currentUserDoc = data;
+    $('avatarBig').textContent = data.avatarEmoji || '🙂';
+    $('displayNameView').textContent = data.displayName || 'Foydalanuvchi';
+    $('handleView').textContent = '@' + (data.username || uid.slice(0,8));
+    $('joinedStat').textContent = fmtDate(data.createdAt);
+    if (data.bio) {
+      $('bioView').textContent = data.bio;
+      $('bioView').classList.remove('empty');
+    } else {
+      $('bioView').textContent = "Hali bio qo'shilmagan.";
+      $('bioView').classList.add('empty');
+    }
+    $('settingsAvatar').textContent = data.avatarEmoji || '🙂';
+    $('settingsName').textContent = data.displayName || 'Foydalanuvchi';
+    $('settingsHandle').textContent = '@' + (data.username || uid.slice(0,8));
+  }
+
+  function buildEmojiPicker(active){
+    const wrap = $('emojiPicker');
+    wrap.innerHTML = '';
+    EMOJIS.forEach(e => {
+      const el = document.createElement('div');
+      el.className = 'emojiOpt' + (e===active ? ' active' : '');
+      el.textContent = e;
+      el.addEventListener('click', () => {
+        selectedEmoji = e;
+        [...wrap.children].forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+      });
+      wrap.appendChild(el);
+    });
+  }
+
+  $('editProfileBtn').addEventListener('click', () => {
+    $('viewMode').classList.add('hidden');
+    $('editArea').classList.remove('hidden');
+    $('editName').value = currentUserDoc.displayName || '';
+    $('editUsername').value = currentUserDoc.username || '';
+    $('usernameErr').textContent = '';
+    $('editBio').value = currentUserDoc.bio || '';
+    selectedEmoji = currentUserDoc.avatarEmoji || EMOJIS[0];
+    buildEmojiPicker(selectedEmoji);
+  });
+  $('cancelEditBtn').addEventListener('click', () => {
+    $('editArea').classList.add('hidden');
+    $('viewMode').classList.remove('hidden');
+  });
+  $('editUsername').addEventListener('input', () => {
+    $('editUsername').value = sanitizeUsername($('editUsername').value);
+    $('usernameErr').textContent = '';
+  });
+  $('saveProfileBtn').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const name = $('editName').value.trim() || 'Foydalanuvchi';
+    const bio = $('editBio').value.trim();
+    let username = sanitizeUsername($('editUsername').value);
+    if (!username) { $('usernameErr').textContent = "Username kiriting (faqat lotin harf/raqam)."; return; }
+    if (username.length < 3) { $('usernameErr').textContent = "Kamida 3 ta belgi bo'lishi kerak."; return; }
+
+    $('saveProfileBtn').disabled = true;
+    $('saveProfileBtn').textContent = 'Saqlanmoqda...';
+    try {
+      if (username !== (currentUserDoc.username || '')) {
+        const taken = await isUsernameTaken(username, user.uid);
+        if (taken) {
+          $('usernameErr').textContent = "Bu username band. Boshqasini tanlang.";
+          $('saveProfileBtn').disabled = false;
+          $('saveProfileBtn').textContent = 'Saqlash';
+          return;
+        }
+      }
+      await db.collection('users').doc(user.uid).update({
+        displayName: name, username: username, bio: bio, avatarEmoji: selectedEmoji
+      });
+      currentUserDoc.displayName = name;
+      currentUserDoc.username = username;
+      currentUserDoc.bio = bio;
+      currentUserDoc.avatarEmoji = selectedEmoji;
+      renderProfile(user.uid, currentUserDoc);
+      $('editArea').classList.add('hidden');
+      $('viewMode').classList.remove('hidden');
+    } catch(e) {
+      alert('Xatolik yuz berdi: ' + e.message);
+    } finally {
+      $('saveProfileBtn').disabled = false;
+      $('saveProfileBtn').textContent = 'Saqlash';
+    }
+  });
+
+  // ---------- Yordamchi funksiyalar ----------
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : str;
+    return d.innerHTML;
+  }
+  function timeAgo(ts){
+    if (!ts || !ts.toDate) return '';
+    const diff = (Date.now() - ts.toDate().getTime()) / 1000;
+    if (diff < 60) return 'hozir';
+    if (diff < 3600) return Math.floor(diff/60) + ' daq';
+    if (diff < 86400) return Math.floor(diff/3600) + ' soat';
+    if (diff < 86400*30) return Math.floor(diff/86400) + ' kun';
+    return ts.toDate().toLocaleDateString('uz-UZ');
+  }
+  function fmtTime(ts){
+    if (!ts || !ts.toDate) return '';
+    const d = ts.toDate();
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+
+  // ---------- Suhbatlar ro'yxati ----------
+  let chatsUnsub = null;
+
+  function renderChatsList(chats){
+    const uid = auth.currentUser.uid;
+    $('chatsEmpty').classList.toggle('hidden', chats.length > 0);
+    $('chatsList').innerHTML = chats.map(c => {
+      const otherUid = (c.members || []).find(m => m !== uid);
+      const name = (c.names && otherUid && c.names[otherUid]) || c.groupName || 'Suhbat';
+      const emoji = (c.emojis && otherUid && c.emojis[otherUid]) || '👥';
+      const preview = c.lastMessage ? escapeHtml(c.lastMessage) : "Hali xabar yo'q";
+      const time = c.lastMessageAt ? timeAgo(c.lastMessageAt) : '';
+      return `<div class="chatRow" data-id="${c.id}" data-other-uid="${otherUid||''}" data-name="${escapeHtml(name)}" data-emoji="${emoji}">
+        <div class="chatRowAvatarWrap">
+          <div class="chatAvatar">${emoji}</div>
+          <div class="rowOnlineDot hidden" data-presence-dot="${otherUid||''}"></div>
+        </div>
+        <div class="chatRowBody">
+          <div class="chatRowTop"><div class="chatRowName">${escapeHtml(name)}</div><div class="chatRowTime">${time}</div></div>
+          <div class="chatRowMsg">${preview}</div>
+        </div>
+      </div>`;
+    }).join('');
+    refreshRowPresenceDots();
+  }
+
+  function startChatsListener(){
+    if (chatsUnsub) return;
+    const uid = auth.currentUser.uid;
+    chatsUnsub = db.collection('chats').where('members', 'array-contains', uid)
+      .onSnapshot(snap => {
+        const chats = [];
+        snap.forEach(doc => chats.push(Object.assign({ id: doc.id }, doc.data())));
+        chats.sort((a,b) => {
+          const at = (a.lastMessageAt && a.lastMessageAt.toDate) ? a.lastMessageAt.toDate().getTime() : 0;
+          const bt = (b.lastMessageAt && b.lastMessageAt.toDate) ? b.lastMessageAt.toDate().getTime() : 0;
+          return bt - at;
+        });
+        renderChatsList(chats);
+      }, err => console.error('Chats error:', err));
+  }
+  function stopChatsListener(){
+    if (chatsUnsub) { chatsUnsub(); chatsUnsub = null; }
+    $('chatsList').innerHTML = '';
+  }
+
+  // ---------- Onlayn holat (presence) tizimi ----------
+  const presenceCache = {}; // uid -> {state, lastSeen}
+  const presenceListeners = {}; // uid -> unsubscribe fn
+
+  function setupOwnPresence(uid){
+    const myRef = rtdb.ref('presence/' + uid);
+    rtdb.ref('.info/connected').on('value', (snap) => {
+      if (snap.val() === true) {
+        myRef.onDisconnect().set({ state: 'offline', lastSeen: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+          myRef.set({ state: 'online', lastSeen: firebase.database.ServerValue.TIMESTAMP });
+        });
+      }
+    });
+  }
+  function goOffline(uid){
+    try { rtdb.ref('presence/' + uid).set({ state: 'offline', lastSeen: firebase.database.ServerValue.TIMESTAMP }); } catch(e) {}
+  }
+
+  function presenceText(p){
+    if (!p) return '';
+    if (p.state === 'online') return 'onlayn';
+    if (!p.lastSeen) return '';
+    const diff = (Date.now() - p.lastSeen) / 1000;
+    if (diff < 60) return 'hozirgina kirgan';
+    if (diff < 3600) return Math.floor(diff/60) + ' daqiqa oldin kirgan';
+    if (diff < 86400) return Math.floor(diff/3600) + ' soat oldin kirgan';
+    return Math.floor(diff/86400) + ' kun oldin kirgan';
+  }
+
+  function refreshRowPresenceDots(){
+    document.querySelectorAll('[data-presence-dot]').forEach(dot => {
+      const uid = dot.dataset.presenceDot;
+      if (!uid) return;
+      const p = presenceCache[uid];
+      dot.classList.toggle('hidden', !(p && p.state === 'online'));
+      if (!presenceListeners[uid]) subscribePresence(uid);
+    });
+  }
+  function subscribePresence(uid){
+    const ref = rtdb.ref('presence/' + uid);
+    const cb = (snap) => {
+      presenceCache[uid] = snap.val() || null;
+      document.querySelectorAll(`[data-presence-dot="${uid}"]`).forEach(dot => {
+        dot.classList.toggle('hidden', !(presenceCache[uid] && presenceCache[uid].state === 'online'));
+      });
+      if (currentChatOtherUid === uid) renderChatHeaderStatus();
+    };
+    ref.on('value', cb);
+    presenceListeners[uid] = () => ref.off('value', cb);
+  }
+
+  // ---------- Chat sarlavhasi: onlayn / yozmoqda holati ----------
+  let currentChatOtherUid = null;
+  let typingListenerRef = null;
+  let isTypingNow = false;
+  let typingTimeout = null;
+
+  function renderChatHeaderStatus(){
+    const el = $('chatDetailStatus');
+    if (currentTypingOther) {
+      el.innerHTML = "yozmoqda...";
+      el.classList.add('typing');
+      return;
+    }
+    el.classList.remove('typing');
+    const p = currentChatOtherUid ? presenceCache[currentChatOtherUid] : null;
+    if (p && p.state === 'online') {
+      el.innerHTML = '<span class="onlineDot"></span> onlayn';
+    } else {
+      el.textContent = presenceText(p);
+    }
+  }
+
+  let currentTypingOther = false;
+  function watchTyping(chatId, otherUid){
+    if (typingListenerRef) { typingListenerRef.off(); typingListenerRef = null; }
+    const ref = rtdb.ref('typing/' + chatId + '/' + otherUid);
+    ref.on('value', (snap) => {
+      currentTypingOther = snap.val() === true;
+      renderChatHeaderStatus();
+    });
+    typingListenerRef = ref;
+  }
+  function setMyTyping(chatId, uid, isTyping){
+    rtdb.ref('typing/' + chatId + '/' + uid).set(isTyping);
+  }
+  $('messageInput').addEventListener('input', () => {
+    if (!currentChatId || !auth.currentUser) return;
+    const uid = auth.currentUser.uid;
+    if (!isTypingNow) { isTypingNow = true; setMyTyping(currentChatId, uid, true); }
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => { isTypingNow = false; setMyTyping(currentChatId, uid, false); }, 2500);
+  });
+
+  $('chatsList').addEventListener('click', (e) => {
+    const row = e.target.closest('.chatRow');
+    if (!row) return;
+    openDirectChat(row.dataset.otherUid, row.dataset.name, row.dataset.emoji);
+  });
+
+  // ---------- Chat oynasi (bitta suhbat) ----------
+  let messagesUnsub = null;
+  let currentChatId = null;
+  let currentChatOtherName = '';
+  let lastMsgsById = {};
+  let composerMode = null;
+
+  async function openDirectChat(otherUid, otherName, otherEmoji){
+    const user = auth.currentUser;
+    if (!user || !otherUid) return;
+    const chatId = [user.uid, otherUid].sort().join('_');
+    currentChatId = chatId;
+    currentChatOtherName = otherName || 'Foydalanuvchi';
+    currentChatOtherUid = otherUid;
+    currentTypingOther = false;
+    $('chatDetailAvatar').textContent = otherEmoji || '🙂';
+    $('chatDetailName').textContent = otherName || 'Foydalanuvchi';
+    $('pickerOverlay').classList.add('hidden');
+    $('chatDetail').classList.remove('hidden');
+    $('messagesArea').innerHTML = '<div id="chatEmptyState">Yuklanmoqda...</div>';
+    if (!presenceListeners[otherUid]) subscribePresence(otherUid);
+    renderChatHeaderStatus();
+    watchTyping(chatId, otherUid);
+
+    const names = {}; names[user.uid] = (currentUserDoc && currentUserDoc.displayName) || 'Foydalanuvchi'; names[otherUid] = otherName;
+    const emojis = {}; emojis[user.uid] = (currentUserDoc && currentUserDoc.avatarEmoji) || '🙂'; emojis[otherUid] = otherEmoji;
+    try {
+      await db.collection('chats').doc(chatId).set({ members: [user.uid, otherUid], type: 'direct', names, emojis }, { merge: true });
+    } catch(e) { console.error('Chat create error:', e); }
+    startMessagesListener(chatId);
+  }
+
+  function startMessagesListener(chatId){
+    if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
+    messagesUnsub = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc')
+      .onSnapshot(snap => {
+        const msgs = [];
+        snap.forEach(doc => msgs.push(Object.assign({ id: doc.id }, doc.data())));
+        renderMessages(msgs);
+      }, err => console.error('Messages error:', err));
+  }
+
+  function renderMessages(msgs){
+    const uid = auth.currentUser.uid;
+    const area = $('messagesArea');
+    lastMsgsById = {};
+    msgs.forEach(m => { lastMsgsById[m.id] = m; });
+    if (msgs.length === 0) {
+      area.innerHTML = '<div id="chatEmptyState">Hali xabar yo\'q.<br>Birinchi bo\'lib salom bering! 👋</div>';
+      return;
+    }
+    area.innerHTML = msgs.map(m => {
+      const mine = m.senderUid === uid;
+      const reactions = m.reactions || {};
+      const reactionsHtml = Object.keys(reactions)
+        .filter(e => Array.isArray(reactions[e]) && reactions[e].length > 0)
+        .map(e => `<span class="reactionPill ${reactions[e].includes(uid) ? 'mine' : ''}">${e} ${reactions[e].length}</span>`)
+        .join('');
+      const replyHtml = m.replyToText
+        ? `<div class="replyQuote"><span class="rqSender">${escapeHtml(m.replyToSender||'')}</span><span class="rqText">${escapeHtml(m.replyToText)}</span></div>`
+        : '';
+      return `<div class="msgRow ${mine ? 'me' : ''}">
+        <div class="msgBubble" data-id="${m.id}" data-mine="${mine ? '1':'0'}">
+          ${replyHtml}${escapeHtml(m.text)}${m.edited ? '<span class="editedTag">tahrirlangan</span>' : ''}
+          <span class="msgTime">${fmtTime(m.createdAt)}</span>
+          ${reactionsHtml ? `<div class="reactionsRow">${reactionsHtml}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    area.scrollTop = area.scrollHeight;
+  }
+
+  // ---------- Composer holati: oddiy / javob / tahrirlash ----------
+  function setComposerReply(id, text, senderName){
+    composerMode = { type:'reply', id, text, senderName };
+    $('ctxIcon').textContent = '↩️';
+    $('ctxLabel').textContent = 'Javob: ' + senderName;
+    $('ctxText').textContent = text;
+    $('composerContextBar').classList.add('show');
+    $('messageInput').focus();
+  }
+  function setComposerEdit(id, text){
+    composerMode = { type:'edit', id, text };
+    $('ctxIcon').textContent = '✏️';
+    $('ctxLabel').textContent = 'Tahrirlash';
+    $('ctxText').textContent = text;
+    $('composerContextBar').classList.add('show');
+    $('messageInput').value = text;
+    $('messageInput').focus();
+  }
+  function clearComposerMode(){
+    composerMode = null;
+    $('composerContextBar').classList.remove('show');
+    $('messageInput').value = '';
+  }
+  $('composerContextCancel').addEventListener('click', clearComposerMode);
+
+  async function sendCurrentMessage(){
+    const text = $('messageInput').value.trim();
+    const user = auth.currentUser;
+    if (!text || !currentChatId || !user) return;
+    $('sendMsgBtn').disabled = true;
+    clearTimeout(typingTimeout);
+    if (isTypingNow) { isTypingNow = false; setMyTyping(currentChatId, user.uid, false); }
+    try {
+      if (composerMode && composerMode.type === 'edit') {
+        await db.collection('chats').doc(currentChatId).collection('messages').doc(composerMode.id).update({
+          text: text, edited: true
+        });
+      } else {
+        const payload = { senderUid: user.uid, text: text, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+        if (composerMode && composerMode.type === 'reply') {
+          payload.replyToText = composerMode.text;
+          payload.replyToSender = composerMode.senderName;
+        }
+        await db.collection('chats').doc(currentChatId).collection('messages').add(payload);
+        await db.collection('chats').doc(currentChatId).update({
+          lastMessage: text, lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      clearComposerMode();
+    } catch(e) {
+      alert('Xabar yuborishda xatolik: ' + e.message);
+    } finally {
+      $('sendMsgBtn').disabled = false;
+    }
+  }
+  $('sendMsgBtn').addEventListener('click', sendCurrentMessage);
+  $('messageInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendCurrentMessage(); });
+
+  // ---------- Xabar amallari: reaksiya / javob / tahrirlash / o'chirish ----------
+  const REACTION_EMOJIS = ['👍','❤️','😂','😮','😢','🙏'];
+  $('reactionRow').innerHTML = REACTION_EMOJIS.map(e => `<button class="reactionOpt" data-e="${e}">${e}</button>`).join('');
+  let activeMsg = null;
+
+  function openMsgActions(id, text, mine, senderName){
+    activeMsg = { id, text, mine, senderName };
+    $('actionEdit').classList.toggle('hidden', !mine);
+    $('actionDelete').classList.toggle('hidden', !mine);
+    $('msgActionOverlay').classList.remove('hidden');
+  }
+  $('msgActionOverlay').addEventListener('click', (e) => { if (e.target.id === 'msgActionOverlay') $('msgActionOverlay').classList.add('hidden'); });
+
+  $('messagesArea').addEventListener('click', (e) => {
+    const bubble = e.target.closest('.msgBubble');
+    if (!bubble) return;
+    const id = bubble.dataset.id;
+    const m = lastMsgsById[id];
+    if (!m) return;
+    const mine = bubble.dataset.mine === '1';
+    openMsgActions(id, m.text, mine, mine ? ((currentUserDoc && currentUserDoc.displayName) || 'Siz') : currentChatOtherName);
+  });
+
+  $('reactionRow').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.reactionOpt');
+    if (!btn || !activeMsg || !currentChatId) return;
+    const emoji = btn.dataset.e;
+    const uid = auth.currentUser.uid;
+    const msgData = lastMsgsById[activeMsg.id] || {};
+    const already = msgData.reactions && Array.isArray(msgData.reactions[emoji]) && msgData.reactions[emoji].includes(uid);
+    const ref = db.collection('chats').doc(currentChatId).collection('messages').doc(activeMsg.id);
+    const updateObj = {};
+    updateObj['reactions.' + emoji] = already
+      ? firebase.firestore.FieldValue.arrayRemove(uid)
+      : firebase.firestore.FieldValue.arrayUnion(uid);
+    $('msgActionOverlay').classList.add('hidden');
+    try { await ref.update(updateObj); } catch(err) { console.error('Reaction error:', err); }
+  });
+
+  $('actionReply').addEventListener('click', () => {
+    if (!activeMsg) return;
+    setComposerReply(activeMsg.id, activeMsg.text, activeMsg.senderName);
+    $('msgActionOverlay').classList.add('hidden');
+  });
+  $('actionEdit').addEventListener('click', () => {
+    if (!activeMsg) return;
+    setComposerEdit(activeMsg.id, activeMsg.text);
+    $('msgActionOverlay').classList.add('hidden');
+  });
+  $('actionDelete').addEventListener('click', async () => {
+    if (!activeMsg || !currentChatId) return;
+    const id = activeMsg.id;
+    $('msgActionOverlay').classList.add('hidden');
+    if (!confirm("Xabarni o'chirishni tasdiqlaysizmi?")) return;
+    try { await db.collection('chats').doc(currentChatId).collection('messages').doc(id).delete(); }
+    catch(e) { alert('Xatolik: ' + e.message); }
+  });
+
+  $('chatBackBtn').addEventListener('click', () => {
+    $('chatDetail').classList.add('hidden');
+    if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
+    if (typingListenerRef) { typingListenerRef.off(); typingListenerRef = null; }
+    if (isTypingNow && currentChatId && auth.currentUser) { setMyTyping(currentChatId, auth.currentUser.uid, false); }
+    isTypingNow = false; clearTimeout(typingTimeout);
+    currentChatId = null;
+    currentChatOtherUid = null;
+    clearComposerMode();
+  });
+
+  function renderContactsList(users){
+    $('contactsEmpty').classList.toggle('hidden', users.length > 0);
+    const sorted = [...users].sort((a,b) => (a.displayName||'').localeCompare(b.displayName||'', 'uz'));
+    let lastLetter = '';
+    let html = '';
+    sorted.forEach(u => {
+      const name = u.displayName || 'Foydalanuvchi';
+      const letter = name.charAt(0).toUpperCase();
+      if (letter !== lastLetter) { html += `<div class="letterHead">${escapeHtml(letter)}</div>`; lastLetter = letter; }
+      html += `<div class="chatRow" data-uid="${u.uid}" data-name="${escapeHtml(name)}" data-emoji="${u.avatarEmoji||'🙂'}">
+        <div class="chatRowAvatarWrap">
+          <div class="chatAvatar">${u.avatarEmoji || '🙂'}</div>
+          <div class="rowOnlineDot hidden" data-presence-dot="${u.uid}"></div>
+        </div>
+        <div class="chatRowBody">
+          <div class="chatRowTop"><div class="chatRowName">${escapeHtml(name)}</div></div>
+          <div class="chatRowMsg">${u.username ? '@'+escapeHtml(u.username) : "Davra a'zosi"}</div>
+        </div>
+      </div>`;
+    });
+    $('contactsList').innerHTML = html;
+    refreshRowPresenceDots();
+  }
+
+  async function openContactsTab(){
+    $('contactsSearch').value = '';
+    $('contactsList').innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Yuklanmoqda...</div>';
+    await loadAllUsers();
+    renderContactsList(allUsersCache);
+  }
+  $('contactsSearch').addEventListener('input', () => {
+    const q = $('contactsSearch').value.trim().toLowerCase().replace('@','');
+    renderContactsList(allUsersCache.filter(u =>
+      (u.displayName||'').toLowerCase().includes(q) || (u.username||'').toLowerCase().includes(q)
+    ));
+  });
+  $('contactsList').addEventListener('click', (e) => {
+    const row = e.target.closest('.chatRow');
+    if (!row) return;
+    openDirectChat(row.dataset.uid, row.dataset.name, row.dataset.emoji);
+  });
+
+  // ---------- Yangi suhbat: foydalanuvchi tanlash ----------
+  let allUsersCache = [];
+
+  async function loadAllUsers(){
+    const uid = auth.currentUser.uid;
+    const snap = await db.collection('users').get();
+    allUsersCache = [];
+    snap.forEach(doc => { if (doc.id !== uid) allUsersCache.push(Object.assign({ uid: doc.id }, doc.data())); });
+  }
+
+  function renderPickerList(users){
+    $('pickerEmpty').classList.toggle('hidden', users.length > 0);
+    $('pickerList').innerHTML = users.map(u => `<div class="pickerRow" data-uid="${u.uid}" data-name="${escapeHtml(u.displayName || 'Foydalanuvchi')}" data-emoji="${u.avatarEmoji || '🙂'}">
+      <div class="pickerAvatar">${u.avatarEmoji || '🙂'}</div>
+      <div>
+        <div class="pickerName">${escapeHtml(u.displayName || 'Foydalanuvchi')}</div>
+        ${u.username ? `<div style="font-size:12px;color:var(--text-dim);">@${escapeHtml(u.username)}</div>` : ''}
+      </div>
+    </div>`).join('');
+  }
+
+  async function openNewChatPicker(){
+    $('pickerOverlay').classList.remove('hidden');
+    $('pickerSearch').value = '';
+    $('pickerList').innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Yuklanmoqda...</div>';
+    await loadAllUsers();
+    renderPickerList(allUsersCache);
+  }
+  $('topbarAddBtn').addEventListener('click', openNewChatPicker);
+  $('pickerClose').addEventListener('click', () => $('pickerOverlay').classList.add('hidden'));
+  $('pickerSearch').addEventListener('input', () => {
+    const q = $('pickerSearch').value.trim().toLowerCase().replace('@','');
+    renderPickerList(allUsersCache.filter(u =>
+      (u.displayName||'').toLowerCase().includes(q) || (u.username||'').toLowerCase().includes(q)
+    ));
+  });
+  $('pickerList').addEventListener('click', (e) => {
+    const row = e.target.closest('.pickerRow');
+    if (!row) return;
+    openDirectChat(row.dataset.uid, row.dataset.name, row.dataset.emoji);
+  });
+
+  // ---------- Auth holatini kuzatish ----------
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      showScreen('app');
+      showTab('chats');
+      startChatsListener();
+      setupOwnPresence(user.uid);
+      try {
+        const snap = await db.collection('users').doc(user.uid).get();
+        if (snap.exists) {
+          renderProfile(user.uid, snap.data());
+        } else {
+          const baseName = user.displayName || (user.email ? user.email.split('@')[0] : 'foydalanuvchi');
+          const username = await generateUniqueUsername(baseName);
+          const fallback = {
+            displayName: baseName, username: username, bio: '', avatarEmoji: EMOJIS[0],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          await db.collection('users').doc(user.uid).set(fallback);
+          renderProfile(user.uid, Object.assign({}, fallback, { createdAt: new Date() }));
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    } else {
+      if (window.__lastUid) goOffline(window.__lastUid);
+      Object.values(presenceListeners).forEach(unsub => unsub());
+      stopChatsListener();
+      $('chatDetail').classList.add('hidden');
+      if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
+      if (typingListenerRef) { typingListenerRef.off(); typingListenerRef = null; }
+      currentChatId = null;
+      currentChatOtherUid = null;
+      setMode(false);
+      showScreen('auth');
+    }
+    window.__lastUid = user ? user.uid : null;
+  });
+})();
+</script>
+</body>
+</html>
