@@ -14,18 +14,18 @@
 <title>Davra</title>
 
 <!-- PWA: manifest va logotip (ikonkalar) -->
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#17181C">
 <meta name="application-name" content="Davra">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
 
 <!-- iOS uchun PWA sozlamalari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Davra">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,6 +79,7 @@
     color: var(--text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
@@ -96,7 +97,7 @@
   #topbar .brand{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:20px; letter-spacing:-0.01em; color: var(--accent); }
   #topbar .brand .dot{
     width:24px; height:24px; flex-shrink:0;
-    background: url('/assets/splash-icon.png') center/contain no-repeat;
+    background: url('assets/splash-icon.png') center/contain no-repeat;
   }
   #topbar .topbarActions{ display:flex; align-items:center; gap:6px; }
   .iconBtn{
@@ -183,7 +184,7 @@
   #authLogoWrap{ display:flex; justify-content:center; margin-bottom:18px; }
   #authLogo{
     width:68px; height:68px; flex-shrink:0;
-    background: url('/assets/splash-icon.png') center/contain no-repeat;
+    background: url('assets/splash-icon.png') center/contain no-repeat;
     filter: drop-shadow(0 10px 24px rgba(99,91,255,0.4));
   }
 
@@ -1965,7 +1966,7 @@
   // PWA: service worker ro'yxatdan o'tkazish (ilova qobig'ini keshlab, o'rnatiladigan qiladi)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
+      navigator.serviceWorker.register('sw.js').catch((err) => {
         console.warn('Service worker ro\'yxatdan o\'tmadi:', err);
       });
     });
