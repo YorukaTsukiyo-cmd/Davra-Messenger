@@ -336,12 +336,11 @@
     border-radius: 24px;
     padding: 30px 26px;
     position: relative;
-    overflow:hidden;
   }
   #profileCard::after{
     content:''; position:absolute; bottom:-70px; left:-40px; width:200px; height:200px; border-radius:50%;
     background: radial-gradient(circle, rgba(99,91,255,0.10), transparent 70%);
-    pointer-events:none;
+    pointer-events:none; z-index:-1;
   }
   .avatarRow{ display:flex; align-items:center; gap:16px; margin-bottom: 22px; }
   #avatarBig{
@@ -441,6 +440,11 @@
   #bioView.empty{ color: var(--text-dim); font-style: italic; }
 
   .btnRow{ display:flex; gap:10px; margin-top: 22px; }
+  .stickyBtnRow{
+    position: sticky; bottom: 0; z-index: 5;
+    background: linear-gradient(180deg, transparent, var(--surface-2) 22%);
+    margin: 22px -26px -30px; padding: 16px 26px calc(16px + env(safe-area-inset-bottom));
+  }
   .ghostBtn{
     flex:1; padding: 11px 8px; border-radius: 999px; border:1px solid var(--border); background:none;
     color: var(--text); font-weight:600; font-size: 13.5px; cursor:pointer; font-family:inherit;
@@ -522,7 +526,7 @@
   #profileView.fullTakeover{ bottom:0; z-index:40; }
   #avatarBig{ cursor:pointer; }
   #avatarLightbox{
-    position:fixed; inset:0; z-index:60; background:rgba(5,5,10,0.92);
+    position:fixed; top:0; right:0; bottom:0; left:0; width:100%; height:100%; z-index:60; background:rgba(5,5,10,0.92);
     display:flex; align-items:center; justify-content:center;
     animation: lightboxFadeIn .18s ease;
   }
@@ -847,7 +851,7 @@
         <textarea id="editBio" maxlength="160" placeholder="O'zingiz haqingizda qisqacha..."></textarea>
       </div>
 
-      <div class="btnRow">
+      <div class="btnRow stickyBtnRow">
         <button class="ghostBtn" id="cancelEditBtn">Bekor qilish</button>
         <button class="primaryBtn" id="saveProfileBtn" style="margin-top:0;">Saqlash</button>
       </div>
@@ -1290,7 +1294,7 @@
     $('avatarUploadStatus').textContent = 'Tayyorlanmoqda...';
     $('pickAvatarBtn').disabled = true;
     try {
-      const dataUrl = await resizeImageToDataUrl(file, 240, 0.7);
+      const dataUrl = await resizeImageToDataUrl(file, 720, 0.85);
       pendingAvatarUrl = dataUrl;
       $('avatarEditPreview').innerHTML = `<img src="${dataUrl}" class="avatarImg" alt="">`;
       $('removeAvatarBtn').classList.remove('hidden');
@@ -1358,6 +1362,20 @@
       currentUserDoc.username = username;
       currentUserDoc.bio = bio;
       if (pendingAvatarUrl !== null) currentUserDoc.avatarUrl = pendingAvatarUrl;
+      // Barcha mavjud chatlardagi keshlangan ism/rasmni ham yangilaymiz (aks holda eski rasm/ism ko'rinib qoladi)
+      try {
+        const myChats = await db.collection('chats').where('members', 'array-contains', user.uid).get();
+        if (!myChats.empty) {
+          const batch = db.batch();
+          myChats.forEach(doc => {
+            const patch = {};
+            patch['names.' + user.uid] = name;
+            patch['avatarUrls.' + user.uid] = (pendingAvatarUrl !== null ? pendingAvatarUrl : (currentUserDoc.avatarUrl || ''));
+            batch.update(doc.ref, patch);
+          });
+          await batch.commit();
+        }
+      } catch(chatSyncErr) { /* asosiy saqlash muvaffaqiyatli bo'lgani uchun bu xatoni jimgina o'tkazamiz */ }
       pendingAvatarUrl = null;
       renderProfile(user.uid, currentUserDoc);
       $('editArea').classList.add('hidden');
@@ -1400,8 +1418,8 @@
           canvas.width = outSize; canvas.height = outSize;
           canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, outSize, outSize);
 
-          // Natija ~40-80KB atrofida bo'lishi uchun sifatni bosqichma-bosqich pasaytiramiz
-          const targetBytes = 80 * 1024;
+          // Natija ~200-250KB atrofida bo'lishi uchun sifatni bosqichma-bosqich pasaytiramiz
+          const targetBytes = 220 * 1024;
           let q = quality;
           let dataUrl = canvas.toDataURL('image/jpeg', q);
           let tries = 0;
