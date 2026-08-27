@@ -49,10 +49,105 @@
     --radius: 18px;
     --radius-sm: 12px;
     --bg-blur: rgba(23,24,28,0.9);
+    --glass-surface: rgba(30,32,42,0.6);
+    --glass-border: rgba(255,255,255,0.10);
+    --glow-a: rgba(99,91,255,0.20);
+    --glow-b: rgba(76,124,255,0.16);
+    --shadow-soft: 0 10px 30px rgba(0,0,0,0.28);
+    --shadow-lift: 0 18px 46px rgba(0,0,0,0.38);
+    --ease-out: cubic-bezier(.16,.84,.32,1);
     color-scheme: dark;
     transition: background-color .25s ease, color .25s ease;
   }
+
+// ===== Attachment Menu =====
+
+const attachBtn = document.getElementById("attachBtn");
+const fileInput = document.getElementById("fileInput");
+const mediaPreview = document.getElementById("mediaPreview");
+const previewContent = document.getElementById("previewContent");
+const cancelMedia = document.getElementById("cancelMedia");
+
+
+attachBtn.addEventListener("click", () => {
+    fileInput.click();
+});
+
+
+fileInput.addEventListener("change", (e)=>{
+
+    const files = e.target.files;
+
+    if(!files.length) return;
+
+
+    previewContent.innerHTML = "";
+
+
+    [...files].forEach(file=>{
+
+        const url = URL.createObjectURL(file);
+
+
+        if(file.type.startsWith("image/")){
+
+            const img=document.createElement("img");
+            img.src=url;
+            previewContent.appendChild(img);
+
+        }
+
+
+        else if(file.type.startsWith("video/")){
+
+            const video=document.createElement("video");
+
+            video.src=url;
+            video.controls=true;
+
+            previewContent.appendChild(video);
+
+        }
+
+
+        else{
+
+            const div=document.createElement("div");
+
+            div.innerHTML=
+            "📄 "+file.name;
+
+            previewContent.appendChild(div);
+
+        }
+
+    });
+
+
+    mediaPreview.classList.remove("hidden");
+
+});
+
+
+
+cancelMedia.addEventListener("click",()=>{
+    window.pendingMedia=null;
+    if(window.stream){ window.stream.getTracks().forEach(t=>t.stop()); }
+
+    mediaPreview.classList.add("hidden");
+
+    previewContent.innerHTML="";
+
+    fileInput.value="";
+
+});
   html[data-theme="light"]{
+    --glass-surface: rgba(255,255,255,0.62);
+    --glass-border: rgba(23,24,28,0.08);
+    --glow-a: rgba(99,91,255,0.14);
+    --glow-b: rgba(76,124,255,0.12);
+    --shadow-soft: 0 10px 30px rgba(23,24,28,0.10);
+    --shadow-lift: 0 18px 46px rgba(23,24,28,0.16);
     --bg: #F5F6FA;
     --bg-2: #EBEDF3;
     --surface: #FFFFFF;
@@ -70,6 +165,247 @@
     color-scheme: light;
     --bg-blur: rgba(245,246,250,0.85);
   }
+
+
+/* Professional composer buttons */
+
+.composerBtn {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    background: linear-gradient(
+        135deg,
+        #2196ff,
+        #0066ff
+    );
+
+    color: white;
+
+    font-size: 22px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 6px 20px rgba(0,120,255,0.35);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        opacity .2s ease;
+}
+
+
+.composerBtn:hover {
+
+    transform: translateY(-3px) scale(1.05);
+
+    box-shadow:
+        0 10px 30px rgba(0,140,255,0.55);
+
+}
+
+
+.composerBtn:active {
+
+    transform:scale(.92);
+
+}
+
+
+/* Send button ham bir xil premium */
+
+#sendMsgBtn {
+
+    width:50px;
+    height:50px;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:
+    linear-gradient(
+        135deg,
+        #00c6ff,
+        #0072ff
+    );
+
+    color:white;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    box-shadow:
+    0 8px 25px rgba(0,120,255,.5);
+
+    transition:.2s;
+}
+
+
+#sendMsgBtn:hover {
+
+    transform:scale(1.08);
+
+}
+
+
+#messageInputBar {
+
+    gap:12px;
+
+    align-items:center;
+
+    padding:14px;
+
+}
+
+
+/* ===== Media Preview ===== */
+
+#mediaPreview {
+    position: absolute;
+    bottom: 75px;
+    left: 15px;
+    right: 15px;
+
+    background:
+    rgba(25,30,45,0.85);
+
+    backdrop-filter: blur(20px);
+
+    border-radius:20px;
+
+    padding:15px;
+
+    border:1px solid rgba(255,255,255,.12);
+
+    box-shadow:
+    0 10px 40px rgba(0,0,0,.4);
+
+    animation: slideUp .25s ease;
+
+    z-index:100;
+}
+
+
+#mediaPreview.hidden {
+    display:none;
+}
+
+
+@keyframes slideUp {
+
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+
+/* Preview ichidagi media */
+
+#previewContent img {
+
+    max-width:200px;
+    max-height:150px;
+
+    border-radius:15px;
+
+    object-fit:cover;
+
+}
+
+
+#previewContent video {
+
+    max-width:240px;
+
+    border-radius:15px;
+
+}
+
+
+/* Cancel button */
+
+#cancelMedia {
+
+    position:absolute;
+
+    top:8px;
+    right:8px;
+
+    width:32px;
+    height:32px;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:#ff4757;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+
+/* Upload progress */
+
+#uploadProgress {
+
+    height:6px;
+
+    background:
+    rgba(255,255,255,.15);
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    margin-top:12px;
+
+}
+
+
+#uploadBar {
+
+    height:100%;
+
+    width:0%;
+
+    background:
+    linear-gradient(
+        90deg,
+        #00c6ff,
+        #0072ff
+    );
+
+    transition:.3s;
+
+}
   html[data-theme="light"] body{ background: var(--bg); }
   html[data-theme="light"] #authCard::before{ opacity:0.5; }
   * { box-sizing: border-box; margin:0; padding:0; }
@@ -190,7 +526,7 @@
 
   #authDivider{ text-align:center; margin: 22px 0 16px; position:relative; color: var(--text-dim); font-size:12px; }
   #authDivider::before{ content:''; position:absolute; top:50%; left:0; right:0; height:1px; background: var(--border); }
-  #authDivider span{ position:relative; background: var(--surface); padding: 0 12px; }
+  #authDivider span{ position:relative; background: var(--surface-2); border-radius:999px; padding: 2px 12px; }
   #authSocialRow{ display:flex; gap:10px; }
   .socialBtn{
     flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
@@ -221,8 +557,8 @@
   .primaryBtn:active{ transform: translateY(0); }
   .primaryBtn:disabled{ opacity:0.55; cursor:default; transform:none; }
 
-  .switchLine{ text-align:center; margin-top:20px; font-size:13.5px; color: var(--text-dim); }
-  .switchLine button{ background:none; border:none; color: var(--accent); font-weight:600; cursor:pointer; font-size:13.5px; font-family:inherit; padding:0; }
+  .switchLine{ text-align:center; margin-top:20px; font-size:13.5px; color: var(--text-dim); padding-left:44px; }
+  .switchLine button{ background:none; border:none; color: var(--accent); font-weight:600; cursor:pointer; font-size:13.5px; font-family:inherit; padding:0; margin-left:4px; }
 
   .errBox{ background: rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.3); color:#FFB3B3; font-size:13px; padding:10px 12px; border-radius: var(--radius-sm); margin-bottom:14px; display:none; line-height:1.4; }
   .errBox.show{ display:block; }
@@ -249,14 +585,73 @@
 
   /* ---------- User picker modal ---------- */
   #pickerOverlay{
-    position:fixed; top:0; right:0; bottom:0; left:0; width:100%; height:100%; background:rgba(10,11,26,0.7); backdrop-filter: blur(3px);
-    display:flex; align-items:flex-end; justify-content:center; z-index: 40;
-  }
+    position:fixed;
+    inset:0;
+
+    background:rgba(8,9,20,0.72);
+
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:100;
+
+    animation:fadeIn .2s ease;
+}
+
+
+#pickerSheet{
+    width:90%;
+    max-width:420px;
+    max-height:70vh;
+
+    background:rgba(30,32,45,0.95);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    border-radius:28px;
+
+    padding:22px;
+
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+
+    display:flex;
+    flex-direction:column;
+
+    animation:pop .25s ease;
+}
+
+
+@keyframes pop{
+
+from{
+    opacity:0;
+    transform:scale(.9);
+}
+
+to{
+    opacity:1;
+    transform:scale(1);
+}
+
+}
+
+
+@keyframes fadeIn{
+
+from{
+opacity:0;
+}
+
+to{
+opacity:1;
+}
+
+}
   #pickerOverlay.hidden{ display:none; }
-  #pickerSheet{
-    width:100%; max-width: 480px; background: var(--surface); border:1px solid var(--border);
-    border-radius: 22px 22px 0 0; padding: 20px 18px 24px; max-height: 74vh; display:flex; flex-direction:column;
-  }
   #pickerHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   #pickerHead h3{ font-size:17px; font-weight:700; }
   #pickerClose{ background:none; border:none; color: var(--text-dim); font-size:20px; cursor:pointer; line-height:1; padding:4px; }
@@ -302,8 +697,8 @@
     display:flex; flex-wrap:wrap; align-items:flex-end; column-gap:8px; row-gap:2px;
   }
   .msgText{ white-space:pre-wrap; word-break:break-word; flex:0 1 auto; }
-  .msgRow:not(.me) .msgBubble{ background: var(--bubble-other); color: var(--bubble-other-text); border-bottom-left-radius:4px; }
-  .msgRow.me .msgBubble{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#FFFFFF; border-bottom-right-radius:4px; }
+  .msgRow:not(.me) .msgBubble{ background: var(--bubble-other); color: var(--bubble-other-text); border-bottom-left-radius:4px; box-shadow: var(--shadow-soft); }
+  .msgRow.me .msgBubble{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#FFFFFF; border-bottom-right-radius:4px; box-shadow: 0 8px 22px rgba(99,91,255,0.28); }
   .msgTime{ font-size:10px; opacity:0.6; margin-left:auto; white-space:nowrap; flex:0 0 auto; padding-bottom:1px; }
   .msgRow:not(.me) .msgTime{ opacity:0.5; }
   .msgCheck{ margin-left:4px; opacity:0.8; letter-spacing:-1px; }
@@ -472,6 +867,65 @@
   .viewSearchInput::placeholder{ color: var(--text-dim); }
   .viewSearchInput:focus{ border-color: var(--accent); }
   .letterHead{ font-size:12px; font-weight:700; color: var(--accent); padding: 12px 10px 4px; letter-spacing:0.06em; }
+
+  /* ---------- Kontaktlar: so'rovlar va amal tugmalari ---------- */
+  #contactReqBanner{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; margin: 2px 0 14px;
+    border-radius: var(--radius-sm); cursor:pointer; border:1px solid var(--border);
+    background: linear-gradient(135deg, rgba(99,91,255,0.14), rgba(76,124,255,0.10));
+    transition: background .15s, transform .15s;
+  }
+  #contactReqBanner:hover{ transform: translateY(-1px); }
+  #contactReqBanner.hidden{ display:none; }
+  #contactReqBanner .reqIcon{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff; box-shadow:0 4px 14px rgba(99,91,255,0.35);
+  }
+  #contactReqBanner .reqBody{ flex:1; min-width:0; }
+  #contactReqBanner .reqTitle{ font-weight:700; font-size:14px; }
+  #contactReqBanner .reqSub{ font-size:12.5px; color: var(--text-dim); margin-top:1px; }
+  #contactReqBanner .chevron{ color: var(--text-dim); font-size:18px; }
+
+  #contactReqOverlay{
+    position:fixed; top:0; right:0; bottom:0; left:0; width:100%; height:100%; background:rgba(10,11,26,0.7); backdrop-filter: blur(3px);
+    display:flex; align-items:flex-end; justify-content:center; z-index: 40;
+  }
+  #contactReqOverlay.hidden{ display:none; }
+  #contactReqSheet{
+    width:100%; max-width: 480px; background: var(--surface); border:1px solid var(--border);
+    border-radius: 22px 22px 0 0; padding: 20px 18px 24px; max-height: 74vh; display:flex; flex-direction:column;
+  }
+  #contactReqHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  #contactReqHead h3{ font-size:17px; font-weight:700; }
+  #contactReqClose{ background:none; border:none; color: var(--text-dim); font-size:20px; cursor:pointer; line-height:1; padding:4px; }
+  #contactReqList{ overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:4px; }
+  #contactReqEmpty{ text-align:center; color:var(--text-dim); font-size:13px; padding: 24px; }
+  .reqRow{ display:flex; align-items:center; gap:11px; padding: 10px 6px; border-radius: var(--radius-sm); }
+  .reqRowBody{ flex:1; min-width:0; }
+  .reqRowName{ font-weight:600; font-size:14px; }
+  .reqRowSub{ font-size:12px; color:var(--text-dim); }
+  .reqRowActions{ display:flex; gap:6px; flex-shrink:0; }
+
+  .pillBtn{
+    border:none; border-radius:999px; padding:7px 14px; font-family:inherit; font-weight:700; font-size:12.5px;
+    cursor:pointer; white-space:nowrap; flex-shrink:0; transition: transform .12s, filter .12s;
+  }
+  .pillBtn:active{ transform:scale(.94); }
+  .pillBtn.pillAdd{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff; box-shadow:0 3px 10px rgba(99,91,255,0.32); }
+  .pillBtn.pillAccept{ background: var(--mint); color:#fff; }
+  .pillBtn.pillGhost{ background: var(--surface-2); color: var(--text-dim); border:1px solid var(--border); }
+  .pillBtn.pillGhost:hover{ color: var(--danger); border-color: var(--danger); }
+  .pillBtn:hover{ filter:brightness(1.08); }
+  .pillBtn.pillIcon{ padding:7px 9px; }
+
+  .contactRowAction{ flex-shrink:0; margin-left:auto; padding-left:8px; }
+  .contactStatusTag{ font-size:11.5px; color: var(--text-dim); font-weight:600; padding:6px 4px; flex-shrink:0; }
+
+  /* ---------- Profil sarlavha bo'limi: o'ng tomonga suriladi ---------- */
+  .profileAvatarRow{ flex-direction:column; align-items:flex-end; text-align:right; margin-left:auto; }
+  .profileAvatarRow .avatarNameBlock{ display:flex; flex-direction:column; align-items:flex-end; }
+  #profileContactActions{ display:flex; justify-content:flex-end; gap:8px; margin:4px 0 4px; }
+  #profileContactActions.hidden{ display:none; }
   #contactsEmpty{ text-align:center; color: var(--text-dim); font-size:13.5px; padding: 40px 20px; line-height:1.6; }
 
   .emptyIconWrap{
@@ -550,6 +1004,96 @@
     display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 14px 16px;
     border-bottom:1px solid var(--border); background: var(--bg-blur); backdrop-filter: blur(10px);
   }
+
+  /* ---------- Sozlamalar ich-sahifasi (Davra haqida / Yordam / Chatlar / Hisob / Maxfiylik / Xotira) ---------- */
+  #subPageView{ position:fixed; top:0; right:0; bottom:0; left:0; width:100%; background: var(--bg); z-index:38; display:flex; flex-direction:column; }
+  #subPageView.hidden{ display:none; }
+  #subPageHead{
+    display:flex; align-items:center; gap:10px; padding: 14px 16px;
+    border-bottom:1px solid var(--border); background: var(--bg-blur); backdrop-filter: blur(10px); flex-shrink:0;
+  }
+  #subPageBackBtn{ background:none; border:none; color: var(--text); font-size:20px; cursor:pointer; padding:4px 6px; }
+  #subPageTitle{ font-weight:700; font-size:15.5px; flex:1; }
+  #subPageContent{ flex:1; overflow-y:auto; padding: 18px 18px 40px; }
+
+  .aboutLogoWrap{ display:flex; flex-direction:column; align-items:center; margin: 12px 0 26px; }
+  .aboutLogoWrap b{ font-size:20px; font-weight:800; margin-top:4px; display:block; text-align:center; }
+  .aboutLogoWrap span{ color: var(--text-dim); font-size:13px; margin-top:2px; display:block; text-align:center; }
+  .aboutText{ color: var(--text-dim); font-size:13.5px; line-height:1.7; text-align:center; padding:0 8px; }
+  .aboutText b{ color: var(--text); }
+
+  .faqItem{ border-bottom:1px solid var(--border); padding: 14px 2px; cursor:pointer; }
+  .faqItem:last-child{ border-bottom:none; }
+  .faqQ{ display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:14px; gap:10px; }
+  .faqQ .chevron{ transition: transform .2s ease; flex-shrink:0; }
+  .faqItem.open .faqQ .chevron{ transform: rotate(90deg); }
+  .faqA{ color: var(--text-dim); font-size:13.5px; line-height:1.6; margin-top:10px; display:none; }
+  .faqItem.open .faqA{ display:block; }
+
+  .contactBtn{
+    display:flex; align-items:center; gap:12px; padding:14px; border-radius: var(--radius-sm);
+    background: var(--surface); border:1px solid var(--border); margin-bottom:10px; text-decoration:none; color:var(--text);
+  }
+  .contactBtn .settingIcon{ margin:0; }
+  .contactBtn b{ display:block; font-size:14px; }
+  .contactBtn span{ color: var(--text-dim); font-size:12.5px; }
+
+  /* ---------- Maxfiylik: radio tanlov ---------- */
+  .radioRow{ display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .radioRow:last-of-type{ border-bottom:none; }
+  .radioCircle{ width:20px; height:20px; border-radius:50%; border:2px solid var(--text-dim); flex-shrink:0; position:relative; }
+  .radioCircle.checked{ border-color: var(--accent); }
+  .radioCircle.checked::after{ content:''; position:absolute; inset:3px; border-radius:50%; background: var(--accent); }
+
+  /* ---------- Bloklangan foydalanuvchilar ---------- */
+  .blockedRow{ display:flex; align-items:center; gap:12px; padding:10px 4px; border-bottom:1px solid var(--border); }
+  .blockedRow:last-child{ border-bottom:none; }
+  .unblockBtn{ background: var(--bg-2); border:1px solid var(--border); color:var(--text); font-size:12px; padding:6px 10px; border-radius:8px; cursor:pointer; flex-shrink:0; }
+  .unblockBtn:hover{ background: var(--surface-2); }
+  .emptyHint{ color: var(--text-dim); font-size:13px; padding:8px 4px; }
+
+  /* ---------- Chatdagi "bloklangan" bildirishnomasi ---------- */
+  #blockedBanner{ display:none; align-items:center; justify-content:center; gap:10px; padding:10px 16px; background: rgba(255,107,107,0.12); color: var(--coral); font-size:12.5px; text-align:center; }
+  #blockedBanner.show{ display:flex; }
+  #blockedBanner button{ background:none; border:1px solid var(--coral); color:var(--coral); font-size:12px; padding:5px 10px; border-radius:8px; cursor:pointer; flex-shrink:0; }
+
+  /* ---------- Hisob sahifasi ---------- */
+  .accountInfoRow{ padding:12px 4px; border-bottom:1px solid var(--border); }
+  .accountInfoRow:last-of-type{ border-bottom:none; }
+  .accountInfoRow .settingSub{ margin-top:4px; word-break:break-all; }
+  .dangerBtn{ background: rgba(255,107,107,0.12); color: var(--coral); border:1px solid rgba(255,107,107,0.35); border-radius:12px; padding:12px 16px; font-size:14px; font-weight:600; width:100%; text-align:center; cursor:pointer; margin-top:8px; }
+  .dangerBtn:hover{ background: rgba(255,107,107,0.2); }
+
+  /* ---------- Ma'lumot va xotira sahifasi ---------- */
+  .storageStatRow{ display:flex; justify-content:space-between; align-items:center; padding:8px 4px; font-size:13.5px; }
+  .storageStatRow b{ font-weight:700; }
+  .storageBar{ height:8px; border-radius:4px; background: var(--bg-2); overflow:hidden; margin:8px 0 4px; }
+  .storageBarFill{ height:100%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius:4px; transition: width .3s ease; }
+
+  /* ---------- Chatlar sozlamalari: fon va matn o'lchami ---------- */
+  .bgSwatchGrid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-top:6px; }
+  .bgSwatch{
+    aspect-ratio: 1; border-radius:14px; cursor:pointer; position:relative;
+    border:2px solid transparent; display:flex; align-items:center; justify-content:center;
+  }
+  .bgSwatch.active{ border-color: var(--accent); }
+  .bgSwatch .checkDot{
+    position:absolute; bottom:6px; right:6px; width:18px; height:18px; border-radius:50%;
+    background: var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px;
+    opacity:0; transform: scale(0.5);
+  }
+  .bgSwatch.active .checkDot{ opacity:1; transform: scale(1); }
+
+  .fontSizeRow{ display:flex; gap:10px; margin-top:6px; }
+  .fontSizeOpt{
+    flex:1; padding:14px 8px; border-radius: var(--radius-sm); background: var(--surface); border:1.5px solid var(--border);
+    text-align:center; cursor:pointer; font-weight:700; color: var(--text-dim);
+  }
+  .fontSizeOpt.active{ border-color: var(--accent); color: var(--accent); background: rgba(99,91,255,0.08); }
+  .fontSizeOpt .fsPreview{ display:block; margin-bottom:6px; }
+
+  body.fs-small .msgBubble{ font-size:12.5px; }
+  body.fs-large .msgBubble{ font-size:17px; }
   #profileBackBtn{ background:none; border:none; color: var(--text); font-size:20px; cursor:pointer; padding:4px 6px; }
   #profileHeadTitle{ font-weight:700; font-size:15.5px; flex:1; }
   #profileEditToggleBtn{ background:none; border:none; color: var(--accent); cursor:pointer; padding:4px; }
@@ -605,6 +1149,224 @@
     .authTitle{ font-size:24px; }
     #authCard{ padding: 30px 22px 26px; }
   }
+
+  
+/* ---------- Premium ambient theme (app-wide, theme-aware) ---------- */
+body{
+  position:relative;
+  background:
+    radial-gradient(circle at 15% 0%, var(--glow-a), transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--glow-b), transparent 45%),
+    var(--bg);
+  background-attachment:fixed;
+}
+body::before,body::after{
+  content:"";
+  position:fixed;
+  border-radius:50%;
+  filter:blur(18px);
+  opacity:.4;
+  pointer-events:none;
+  z-index:0;
+  animation:glassFloat 16s ease-in-out infinite;
+}
+body::before{ width:280px;height:280px; background:var(--glow-a); top:-6%;left:-6%; }
+body::after{ width:240px;height:240px; background:var(--glow-b); bottom:-8%;right:-6%; animation-delay:-6s; }
+#loadingScreen{ background:var(--bg); }
+#topbar,#bottomNav,#authWrap,#appWrap{ position:relative; z-index:1; }
+#chatDetail,#pickerOverlay,#msgActionOverlay,#avatarLightbox{ z-index:9999; }
+
+#authWrap{ overflow:hidden; }
+#authWrap::before,#authWrap::after{
+  content:"";
+  position:absolute;
+  border-radius:30px;
+  background:var(--glass-border);
+  backdrop-filter:blur(20px);
+  animation:glassFloat 14s ease-in-out infinite;
+  pointer-events:none;
+}
+#authWrap::before{width:90px;height:90px;left:18%;top:18%;transform:rotate(25deg);}
+#authWrap::after{width:70px;height:70px;right:18%;bottom:20%;border-radius:50%;animation-delay:-7s;}
+#authCard{
+  background:var(--glass-surface);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--shadow-lift),0 0 40px var(--glow-a);
+  animation:cardEnter .7s var(--ease-out);
+}
+#authCard::before{
+  background:radial-gradient(circle,var(--glow-a),transparent 70%);
+}
+.field input,.field textarea{
+  background:var(--glass-surface);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(12px);
+  transition:.25s;
+}
+.field input:focus,.field textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(99,91,255,.16),0 0 22px var(--glow-a);
+}
+.primaryBtn{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  box-shadow:0 12px 32px rgba(99,91,255,.3);
+  transition:.25s var(--ease-out);
+}
+.primaryBtn:hover{
+  transform:translateY(-2px) scale(1.01);
+  box-shadow:0 18px 42px rgba(99,91,255,.4);
+}
+.primaryBtn:active{ transform:translateY(0) scale(.98); }
+.socialBtn{
+  background:var(--glass-surface);
+  backdrop-filter:blur(14px);
+}
+@keyframes glassFloat{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-22px) rotate(8deg);}
+}
+@keyframes cardEnter{
+  from{opacity:0;transform:translateY(24px) scale(.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* ---------- Premium surfaces app-wide ---------- */
+#profileCard,#pickerSheet,#msgActionSheet,.settingsGroup,#settingsProfileRow,#authCard{
+  background:var(--glass-surface);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);
+}
+.settingsGroup,#settingsProfileRow,#profileCard{ box-shadow:var(--shadow-soft); transition:box-shadow .25s var(--ease-out), transform .25s var(--ease-out); }
+#topbar,#bottomNav,#chatDetailHead,#profileHead,#messageInputBar,.searchRow{
+  background:var(--glass-surface);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+body.overlayActive #topbar,
+body.overlayActive #bottomNav,
+body.overlayActive .searchRow{
+  opacity:.35;
+  filter:saturate(.7);
+  transition:opacity .2s ease, filter .2s ease;
+  pointer-events:none;
+}
+
+/* ---------- Micro-interactions ---------- */
+.chatRow,.pickerRow,.settingsRow,#settingsProfileRow{ transition:background .18s var(--ease-out), transform .18s var(--ease-out); }
+.chatRow:active,.pickerRow:active,.settingsRow:active{ transform:scale(.985); }
+.iconBtn,.navTab,.chip,.ghostBtn{ transition:background .15s var(--ease-out), color .15s var(--ease-out), transform .15s var(--ease-out), box-shadow .15s var(--ease-out); }
+.iconBtn:active,.navTab:active,.chip:active,.ghostBtn:active{ transform:scale(.92); }
+.navTab.active svg{ animation:navPop .35s var(--ease-out); }
+@keyframes navPop{ 0%{ transform:scale(.7) translateY(-1px); } 60%{ transform:scale(1.15) translateY(-1px); } 100%{ transform:scale(1) translateY(-1px); } }
+
+.msgBubble{ animation:bubbleIn .3s var(--ease-out); transform-origin:bottom; }
+@keyframes bubbleIn{ from{ opacity:0; transform:translateY(8px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
+
+#chatsView:not(.hidden),#contactsView:not(.hidden),#settingsView:not(.hidden),#profileView:not(.hidden){ animation:viewIn .32s var(--ease-out); }
+@keyframes viewIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+
+#chatDetail:not(.hidden){ animation:detailIn .28s var(--ease-out); }
+@keyframes detailIn{ from{ opacity:0; transform:translateX(10px); } to{ opacity:1; transform:translateX(0); } }
+
+.chatAvatar,.pickerAvatar,#chatDetailAvatar,#avatarBig,#settingsAvatar{ transition:transform .2s var(--ease-out); }
+.chatRow:hover .chatAvatar,.pickerRow:hover .pickerAvatar{ transform:scale(1.05); }
+
+/* ---------- Refined scrollbars ---------- */
+#messagesArea::-webkit-scrollbar,#pickerList::-webkit-scrollbar,#contactsList::-webkit-scrollbar,#appWrap::-webkit-scrollbar,#profileScroll::-webkit-scrollbar{ width:6px; }
+#messagesArea::-webkit-scrollbar-track,#pickerList::-webkit-scrollbar-track,#contactsList::-webkit-scrollbar-track,#appWrap::-webkit-scrollbar-track,#profileScroll::-webkit-scrollbar-track{ background:transparent; }
+#messagesArea::-webkit-scrollbar-thumb,#pickerList::-webkit-scrollbar-thumb,#contactsList::-webkit-scrollbar-thumb,#appWrap::-webkit-scrollbar-thumb,#profileScroll::-webkit-scrollbar-thumb{ background:var(--border); border-radius:999px; }
+#messagesArea:hover::-webkit-scrollbar-thumb,#pickerList:hover::-webkit-scrollbar-thumb,#contactsList:hover::-webkit-scrollbar-thumb,#appWrap:hover::-webkit-scrollbar-thumb,#profileScroll:hover::-webkit-scrollbar-thumb{ background:var(--accent); }
+
+/* ---------- Typography polish ---------- */
+body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+.authTitle,#splashTitle{ background:linear-gradient(135deg,var(--text),var(--text-dim)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; }
+
+/* ---------- Desktop: ikki panelli tartib (chap tomonda ro'yxat, o'ngda ochiq suhbat) ---------- */
+  @media (min-width: 900px){
+    html, body{ height:100vh; height:100dvh; }
+    body{
+      display:grid;
+      grid-template-columns: 76px minmax(300px, 400px) 1fr;
+      grid-template-rows: auto auto auto 1fr;
+      overflow:hidden;
+    }
+
+    /* Pastki tab-panel o'rniga chap tomonda vertikal navigatsiya paneli */
+    #bottomNav{
+      position:static;
+      grid-column: 1; grid-row: 1 / -1;
+      flex-direction: column; justify-content:flex-start; align-items:center;
+      gap:8px; padding: 22px 8px;
+      width:auto; height:100%;
+      border-top:none; border-right:1px solid var(--border);
+    }
+    .navTab{ max-width:none; width:100%; flex: 0 0 auto; }
+
+    /* O'rta ustun: qidiruv/chiplar/ro'yxat (suhbatlar, kontaktlar yoki sozlamalar) */
+    #topbar{ grid-column:2; grid-row:1; position:static; }
+    #topSearchRow{ grid-column:2; grid-row:2; position:static; top:auto; }
+    #topChipsRow{ grid-column:2; grid-row:3; }
+    #appWrap{
+      grid-column:2; grid-row:4; min-height:0; overflow-y:auto;
+      padding: 10px 14px 20px; border-right:1px solid var(--border);
+      align-items:stretch;
+    }
+    #chatsView, #contactsView, #settingsView{ max-width:none; width:100%; }
+
+    /* Kirish ekrani butun kenglikda markazlashtiriladi */
+    #authWrap{ grid-column: 1 / -1; grid-row: 1 / -1; overflow-y:auto; align-items:flex-start; padding-top:60px; padding-bottom:60px; }
+
+    /* Profil/sozlamalar to'liq ekran overlay bo'lganda pastdagi bo'sh joy qolmasin */
+    #profileView, #profileView.fullTakeover{ bottom:0; }
+
+    /* O'ng ustun: ochiq suhbat endi to'liq ekranli overlay emas, doimiy panel */
+    #chatDetail{
+      position:static; inset:auto; width:auto; height:100%;
+      grid-column:3; grid-row: 1 / -1; z-index:auto;
+      border-left:1px solid var(--border);
+    }
+
+    /* Hech qanday suhbat ochilmagan bo'lsa, o'ng panelda bo'sh holat ko'rsatiladi */
+    #chatDetailPlaceholder{
+      grid-column:3; grid-row: 1 / -1;
+      display:none; flex-direction:column; align-items:center; justify-content:center;
+      gap:10px; color: var(--text-dim); background: var(--bg-2); text-align:center; padding:40px;
+      border-left:1px solid var(--border);
+    }
+    #chatDetail.hidden ~ #chatDetailPlaceholder{ display:flex; }
+    /* Never show the "no chat selected" panel while the auth screen is up */
+    body:has(#authWrap:not(.hidden)) #chatDetailPlaceholder{ display:none !important; }
+    #chatDetailPlaceholder .phIcon{ font-size:44px; opacity:0.6; }
+    #chatDetailPlaceholder p{ font-size:14px; max-width:260px; line-height:1.5; }
+  }
+
+/* password tools */
+.passwordWrap{position:relative}
+.passwordWrap input{padding-right:48px}
+.passwordEye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;opacity:.6;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.passwordEye:hover{opacity:1}
+.passwordEye svg{width:18px;height:18px;display:block}
+.forgotPassword{display:block;text-align:right;margin:-8px 0 18px;color:#9fdcff;font-size:13px;cursor:pointer;text-decoration:none}
+.forgotPassword:hover{text-decoration:underline}
+/* Phone auth */
+.linkBtn{background:none;border:none;color:var(--accent);font-weight:600;cursor:pointer;font-size:13px;padding:0;font-family:inherit}
+.linkBtn:hover{text-decoration:underline}
+.phoneInputRow{display:flex;align-items:stretch;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;transition:border-color .15s}
+.phoneInputRow:focus-within{border-color:var(--accent)}
+.phonePrefix{display:flex;align-items:center;padding:0 10px 0 14px;color:var(--text-dim);font-size:14.5px;font-weight:600;border-right:1px solid var(--border);flex-shrink:0}
+.phoneInputRow input{border:none;background:transparent;flex:1;padding:12px 14px;font-size:14.5px;color:var(--text);font-family:inherit;outline:none}
+.otpHint{font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.5}
+.phoneToggleBtn{width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border-radius:999px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
+.phoneToggleBtn:hover{border-color:var(--accent)}
+.phoneToggleBtn svg{width:16px;height:16px}
+.loginHint{margin-top:22px;text-align:center;color:rgba(255,255,255,.55);font-size:13px}
+/* Third floating orb to match the standalone mockup's 3-shape motif */
+.authOrb{position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px);right:12%;top:12%;animation:glassFloat 10s ease-in-out infinite;animation-delay:-3s;pointer-events:none}
+
+.voiceBubble{display:flex;align-items:center;gap:10px;min-width:210px;padding:8px 10px;background:rgba(255,255,255,.12);border-radius:16px}.voicePlay{width:38px;height:38px;border-radius:50%;border:0;background:#fff;color:#333;cursor:pointer}.voiceWave{flex:1;height:24px;display:flex;align-items:center;gap:3px}.voiceWave span{width:3px;background:currentColor;height:10px;border-radius:3px;opacity:.8}.voiceTime{font-size:12px;opacity:.8}
 </style>
 </head>
 <body>
@@ -641,6 +1403,7 @@
 
 <!-- AUTH SCREENS -->
 <div id="authWrap" class="hidden">
+  <div class="authOrb"></div>
   <div id="authCard">
     <div id="authLogoWrap"><div id="authLogo"></div></div>
     <h1 class="authTitle" id="authTitle" style="text-align:center;">Davra</h1>
@@ -648,22 +1411,41 @@
 
     <div class="errBox" id="authErr"></div>
 
+    <button type="button" class="linkBtn" id="emailModeToggle" style="display:none;margin-bottom:14px;">← Email orqali kirish</button>
+
     <div class="field" id="nameFieldWrap" style="display:none;">
       <label>Ismingiz</label>
       <input type="text" id="regName" placeholder="Masalan: Aziza">
     </div>
-    <div class="field">
+    <div class="field" id="emailFieldWrap">
       <label>Email</label>
       <input type="email" id="authEmail" placeholder="email@misol.com">
     </div>
-    <div class="field">
+    <div class="field" id="passwordFieldWrap">
       <label>Parol</label>
-      <input type="password" id="authPassword" placeholder="Kamida 6 ta belgi">
+      <div class="passwordWrap">
+        <input type="password" id="authPassword" placeholder="Kamida 6 ta belgi">
+        <button type="button" class="passwordEye" id="passwordEye" aria-label="Parolni ko'rsatish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
     </div>
+    <div class="field" id="phoneFieldWrap" style="display:none;">
+      <label>Telefon raqami</label>
+      <div class="phoneInputRow">
+        <span class="phonePrefix">+998</span>
+        <input type="tel" id="authPhone" placeholder="90 123 45 67" inputmode="numeric" maxlength="12">
+      </div>
+    </div>
+    <div class="field" id="otpFieldWrap" style="display:none;">
+      <label>SMS kod</label>
+      <input type="text" id="authOtp" placeholder="123456" inputmode="numeric" maxlength="6">
+      <div class="otpHint">Kod <b id="otpPhoneDisplay"></b> raqamiga yuborildi. <button type="button" class="linkBtn" id="otpChangeNumber">Raqamni o'zgartirish</button></div>
+    </div>
+    <a class="forgotPassword" id="forgotPassword">Parolni unutdingizmi?</a>
 
     <button class="primaryBtn" id="authSubmitBtn">Davom etish</button>
+    <div class="loginHint">Chat boshlash uchun tizimga kiring</div>
 
-    <div class="switchLine">
+    <div class="switchLine" id="switchLine">
       <span id="switchText">Hisobingiz yo'qmi?</span>
       <button id="switchBtn">Ro'yxatdan o'tish</button>
     </div>
@@ -679,6 +1461,11 @@
         Apple bilan
       </button>
     </div>
+    <button type="button" class="phoneToggleBtn" id="phoneModeToggle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Telefon raqami bilan kirish
+    </button>
+    <div id="recaptchaContainer"></div>
   </div>
 </div>
 
@@ -692,9 +1479,31 @@
 
   <div id="contactsView" class="hidden">
     <div class="sectionLabel" style="margin:2px 0 10px;">Kontaktlar</div>
-    <input type="text" id="contactsSearch" class="viewSearchInput" placeholder="Qidirish">
+    <div id="contactReqBanner" class="hidden">
+      <div class="reqIcon">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      </div>
+      <div class="reqBody">
+        <div class="reqTitle" id="contactReqBannerTitle">Kontakt so'rovlari</div>
+        <div class="reqSub" id="contactReqBannerSub">0 ta yangi so'rov</div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <input type="text" id="contactsSearch" class="viewSearchInput" placeholder="Qidirish yoki yangi kontakt qo'shish">
     <div id="contactsList"></div>
-    <div id="contactsEmpty" class="hidden">Hozircha boshqa foydalanuvchi topilmadi.</div>
+    <div id="contactsEmpty" class="hidden">Hozircha kontaktlaringiz yo'q.<br>Qidiruv orqali foydalanuvchi toping va so'rov yuboring.</div>
+  </div>
+
+  <!-- Kelgan kontakt so'rovlari -->
+  <div id="contactReqOverlay" class="hidden">
+    <div id="contactReqSheet">
+      <div id="contactReqHead">
+        <h3>Kontakt so'rovlari</h3>
+        <button id="contactReqClose">✕</button>
+      </div>
+      <div id="contactReqList"></div>
+      <div id="contactReqEmpty" class="hidden">Hozircha so'rovlar yo'q.</div>
+    </div>
   </div>
 
   <div id="settingsView" class="hidden">
@@ -791,6 +1600,15 @@
 
 </div>
 
+<!-- Sozlamalar ich-sahifasi (Davra haqida / Yordam / Chatlar sozlamalari va h.k.) -->
+<div id="subPageView" class="hidden">
+  <div id="subPageHead">
+    <button id="subPageBackBtn">←</button>
+    <div id="subPageTitle">—</div>
+  </div>
+  <div id="subPageContent"></div>
+</div>
+
 <!-- Mening sahifam (to'liq ekran profil) -->
 <div id="profileView" class="hidden">
   <div id="profileHead">
@@ -803,16 +1621,18 @@
   <div id="profileScroll">
   <div id="profileCard">
     <div id="viewMode">
-      <div class="avatarRow" style="flex-direction:column; text-align:center; gap:10px;">
+      <div class="avatarRow profileAvatarRow" style="gap:10px;">
         <div id="avatarBig">🙂</div>
-        <div>
+        <div class="avatarNameBlock">
           <div id="displayNameView">—</div>
           <div id="handleView">—</div>
         </div>
       </div>
 
-      <div class="statRow" style="justify-content:center;">
-        <div class="statItem"><b id="joinedStat">—</b><span>a'zo bo'lgan</span></div>
+      <div id="profileContactActions" class="hidden"></div>
+
+      <div class="statRow" style="justify-content:flex-end;">
+        <div class="statItem" style="text-align:right;"><b id="joinedStat">—</b><span>a'zo bo'lgan</span></div>
       </div>
 
       <div class="sectionLabel">Bio</div>
@@ -872,6 +1692,7 @@
   <button class="navTab" id="tabContactsBtn">
     <div class="navTabIconWrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="navBadge hidden" id="navContactsBadge">0</span>
     </div>
     Kontaktlar
   </button>
@@ -923,6 +1744,7 @@
   <div id="messagesArea">
     <div id="chatEmptyState" class="hidden">Hali xabar yo'q.<br>Birinchi bo'lib salom bering! 👋</div>
   </div>
+  <div id="blockedBanner"></div>
   <div id="composerContextBar">
     <span class="ctxIcon" id="ctxIcon">↩️</span>
     <div class="ctxBody">
@@ -932,9 +1754,56 @@
     <button id="composerContextCancel">✕</button>
   </div>
   <div id="messageInputBar">
-    <input type="text" id="messageInput" placeholder="Xabar yozing..." maxlength="1000">
-    <button id="sendMsgBtn">➤</button>
-  </div>
+
+    <input type="file" id="fileInput" hidden multiple accept="image/*,video/*,.pdf,.doc,.docx,.zip">
+
+    <button id="attachBtn" class="composerBtn">
+        📎
+    </button>
+
+    <button id="voiceBtn" class="composerBtn">
+        🎤
+    </button>
+
+    <button id="videoBtn" class="composerBtn">
+        📹
+    </button>
+
+    <input 
+      type="text" 
+      id="messageInput" 
+      placeholder="Xabar yozing..." 
+      maxlength="1000"
+    >
+
+    <button id="sendMsgBtn">
+        ➤
+    </button>
+
+</div>
+
+
+<div id="mediaPreview" class="hidden">
+    <div id="previewContent"></div>
+    <button id="sendMediaBtn" class="primaryBtn">Yuborish</button>
+
+    <button id="cancelMedia">
+        ✕
+    </button>
+
+    <div id="uploadProgress">
+        <div id="uploadBar"></div>
+    </div>
+</div>
+
+
+<video id="cameraPreview" autoplay muted class="hidden"></video>
+</div>
+
+<!-- Faqat katta ekranlarda: hech qaysi suhbat ochilmaganda o'ng panelda ko'rinadi -->
+<div id="chatDetailPlaceholder">
+  <div class="phIcon">💬</div>
+  <p>Yozishmani boshlash uchun chap tomondan suhbat tanlang</p>
 </div>
 
 <!-- Xabar ustida amallar (reply/reaksiya/tahrirlash/o'chirish) -->
@@ -973,11 +1842,31 @@
     appId: "1:648385713929:web:929b84338715a7c740e5d8"
   };
   firebase.initializeApp(firebaseConfig);
+
+  // Password visibility toggle (UI only)
+  document.addEventListener('DOMContentLoaded',()=>{
+    const eye=document.getElementById('passwordEye');
+    const pass=document.getElementById('authPassword');
+    const eyeOpenSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const eyeOffSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-7-11-7a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a20.3 20.3 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    if(eye && pass){
+      eye.innerHTML = eyeOpenSvg;
+      eye.onclick=()=>{
+        pass.type = pass.type==='password' ? 'text' : 'password';
+        eye.innerHTML = pass.type==='password' ? eyeOpenSvg : eyeOffSvg;
+      };
+    }
+  });
+
   const auth = firebase.auth();
   const db = firebase.firestore();
   const rtdb = firebase.database();
 
   let isRegisterMode = false;
+  let authMethod = 'email'; // 'email' | 'phone'
+  let otpSent = false;
+  let confirmationResult = null;
+  let recaptchaVerifier = null;
   let currentUserDoc = null;
   let pendingAvatarUrl = null; // null = o'zgartirilmagan, '' = o'chirilgan, url = yangi rasm
 
@@ -1135,9 +2024,27 @@
     if (e.target.id === 'avatarLightbox') $('avatarLightbox').classList.add('hidden');
   });
 
-  // ---------- Sozlamalar qatorlari (hozircha ma'lumot ekrani) ----------
+  // ---------- Sozlamalar qatorlari ----------
   document.querySelectorAll('.settingsRow[data-setting]').forEach(row => {
-    row.addEventListener('click', () => alert("Bu bo'lim tez orada qo'shiladi."));
+    row.addEventListener('click', () => {
+      const key = row.dataset.setting;
+      if (key === 'about') {
+        openSubPage('Davra haqida', ABOUT_HTML);
+      } else if (key === 'help') {
+        openSubPage('Yordam', HELP_HTML);
+      } else if (key === 'chats') {
+        openSubPage('Chatlar', CHAT_SETTINGS_HTML);
+        initChatSettingsPage();
+      } else if (key === 'privacy') {
+        openPrivacyPage();
+      } else if (key === 'account') {
+        openAccountPage();
+      } else if (key === 'storage') {
+        openStoragePage();
+      } else {
+        alert("Bu bo'lim tez orada qo'shiladi.");
+      }
+    });
   });
   $('settingsLogoutBtn').addEventListener('click', () => auth.signOut());
 
@@ -1168,16 +2075,54 @@
   function setMode(register){
     isRegisterMode = register;
     $('authErr').classList.remove('show');
-    $('nameFieldWrap').style.display = register ? 'block' : 'none';
+    if (authMethod === 'email') { $('nameFieldWrap').style.display = register ? 'block' : 'none'; }
     $('authTitle').textContent = "Davra";
     $('authSub').innerHTML = register
       ? "Boshlaymiz!<br>Davraga qo'shiling, bir necha soniya oladi."
       : "Xush kelibsiz!<br>Davra'da muloqot yanada yangi davrasi.";
-    $('authSubmitBtn').textContent = register ? "Ro'yxatdan o'tish" : "Davom etish";
+    if (authMethod === 'email') { $('authSubmitBtn').textContent = register ? "Ro'yxatdan o'tish" : "Davom etish"; }
     $('switchText').textContent = register ? "Hisobingiz bormi?" : "Hisobingiz yo'qmi?";
     $('switchBtn').textContent = register ? "Kirish" : "Ro'yxatdan o'tish";
   }
   $('switchBtn').addEventListener('click', () => setMode(!isRegisterMode));
+
+  // ---------- Email <-> Telefon raqami orqali kirish rejimini almashtirish ----------
+  function resetPhoneFlow(){
+    otpSent = false;
+    confirmationResult = null;
+    $('authPhone').value = '';
+    $('authOtp').value = '';
+    $('phoneFieldWrap').style.display = 'none';
+    $('otpFieldWrap').style.display = 'none';
+  }
+  function setAuthMethod(method){
+    authMethod = method;
+    $('authErr').classList.remove('show');
+    const isPhone = method === 'phone';
+    resetPhoneFlow();
+    $('emailModeToggle').style.display = isPhone ? 'inline-flex' : 'none';
+    $('phoneModeToggle').style.display = isPhone ? 'none' : 'flex';
+    $('emailFieldWrap').style.display = isPhone ? 'none' : 'block';
+    $('passwordFieldWrap').style.display = isPhone ? 'none' : 'block';
+    $('nameFieldWrap').style.display = (!isPhone && isRegisterMode) ? 'block' : 'none';
+    $('forgotPassword').style.display = isPhone ? 'none' : 'block';
+    $('switchLine').style.display = isPhone ? 'none' : 'flex';
+    $('authDivider').style.display = isPhone ? 'none' : 'block';
+    $('authSocialRow').style.display = isPhone ? 'none' : 'flex';
+    $('phoneFieldWrap').style.display = isPhone ? 'block' : 'none';
+    $('authSubmitBtn').textContent = isPhone ? 'SMS kod yuborish' : (isRegisterMode ? "Ro'yxatdan o'tish" : 'Davom etish');
+  }
+  $('phoneModeToggle').addEventListener('click', () => setAuthMethod('phone'));
+  $('emailModeToggle').addEventListener('click', () => setAuthMethod('email'));
+  $('otpChangeNumber').addEventListener('click', () => {
+    otpSent = false;
+    confirmationResult = null;
+    $('authOtp').value = '';
+    $('authErr').classList.remove('show');
+    $('otpFieldWrap').style.display = 'none';
+    $('phoneFieldWrap').style.display = 'block';
+    $('authSubmitBtn').textContent = 'SMS kod yuborish';
+  });
 
   // ---------- Google / Apple orqali kirish ----------
   $('googleAuthBtn').addEventListener('click', async () => {
@@ -1186,7 +2131,11 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       await auth.signInWithPopup(provider);
     } catch (e) {
-      if (e && e.code && e.code !== 'auth/popup-closed-by-user') showAuthError('Google orqali kirishda xatolik: ' + e.message);
+      if (e && e.code === 'auth/operation-not-supported-in-this-environment') {
+        showAuthError('Google orqali kirish faqat http:// yoki https:// manzilda ishlaydi. Faylni to\'g\'ridan-to\'g\'ri ochish (file://) ishlamaydi — sayt sifatida joylashtiring yoki mahalliy serverda oching.');
+      } else if (e && e.code && e.code !== 'auth/popup-closed-by-user') {
+        showAuthError('Google orqali kirishda xatolik: ' + e.message);
+      }
     }
   });
   $('appleAuthBtn').addEventListener('click', async () => {
@@ -1197,7 +2146,11 @@
       provider.addScope('name');
       await auth.signInWithPopup(provider);
     } catch(e) {
-      if (e && e.code && e.code !== 'auth/popup-closed-by-user') showAuthError('Apple orqali kirishda xatolik: ' + e.message);
+      if (e && e.code === 'auth/operation-not-supported-in-this-environment') {
+        showAuthError('Apple orqali kirish faqat http:// yoki https:// manzilda ishlaydi. Faylni to\'g\'ridan-to\'g\'ri ochish (file://) ishlamaydi — sayt sifatida joylashtiring yoki mahalliy serverda oching.');
+      } else if (e && e.code && e.code !== 'auth/popup-closed-by-user') {
+        showAuthError('Apple orqali kirishda xatolik: ' + e.message);
+      }
     }
   });
 
@@ -1214,10 +2167,69 @@
     'auth/wrong-password': 'Parol noto\'g\'ri.',
     'auth/invalid-credential': 'Email yoki parol noto\'g\'ri.',
     'auth/missing-password': 'Parolni kiriting.',
+    'auth/invalid-phone-number': 'Telefon raqami noto\'g\'ri ko\'rinmoqda.',
+    'auth/missing-phone-number': 'Telefon raqamini kiriting.',
+    'auth/too-many-requests': 'Juda ko\'p urinish qilindi. Birozdan keyin qayta urining.',
+    'auth/invalid-verification-code': 'SMS kod noto\'g\'ri.',
+    'auth/code-expired': 'SMS kodning muddati tugagan. Qaytadan yuboring.',
+    'auth/operation-not-allowed': 'Telefon orqali kirish hozircha yoqilmagan.',
   };
+
+  // ---------- Telefon raqami orqali kirish (SMS OTP) ----------
+  async function sendOtp(){
+    const digits = $('authPhone').value.replace(/\D/g, '');
+    if (digits.length < 9) { showAuthError("To'g'ri telefon raqamini kiriting (9 ta raqam)."); return; }
+    const fullPhone = '+998' + digits.slice(-9);
+
+    $('authSubmitBtn').disabled = true;
+    $('authSubmitBtn').textContent = 'Kuting...';
+    try {
+      if (!recaptchaVerifier) {
+        recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptchaContainer', { size: 'invisible' }, auth);
+      }
+      confirmationResult = await auth.signInWithPhoneNumber(fullPhone, recaptchaVerifier);
+      otpSent = true;
+      $('otpPhoneDisplay').textContent = fullPhone;
+      $('phoneFieldWrap').style.display = 'none';
+      $('otpFieldWrap').style.display = 'block';
+      $('authSubmitBtn').textContent = 'Tasdiqlash';
+    } catch (e) {
+      if (recaptchaVerifier) { try { recaptchaVerifier.clear(); } catch(_){} recaptchaVerifier = null; }
+      if (e && e.code === 'auth/operation-not-supported-in-this-environment') {
+        showAuthError('Telefon orqali kirish faqat http:// yoki https:// manzilda ishlaydi. Faylni to\'g\'ridan-to\'g\'ri ochish (file://) ishlamaydi.');
+      } else {
+        showAuthError((e && FRIENDLY_ERR[e.code]) || ('SMS yuborishda xatolik: ' + (e && e.message)));
+      }
+    } finally {
+      $('authSubmitBtn').disabled = false;
+    }
+  }
+
+  async function verifyOtp(){
+    const code = $('authOtp').value.trim();
+    if (!code) { showAuthError('SMS kodni kiriting.'); return; }
+    if (!confirmationResult) { showAuthError('Avval SMS kod so\'rang.'); return; }
+
+    $('authSubmitBtn').disabled = true;
+    $('authSubmitBtn').textContent = 'Kuting...';
+    try {
+      await confirmationResult.confirm(code);
+      // onAuthStateChanged qolgan ishni (profil yaratish, ilovani ko'rsatish) bajaradi
+    } catch (e) {
+      showAuthError((e && FRIENDLY_ERR[e.code]) || ('Kod noto\'g\'ri: ' + (e && e.message)));
+    } finally {
+      $('authSubmitBtn').disabled = false;
+      $('authSubmitBtn').textContent = 'Tasdiqlash';
+    }
+  }
 
   // ---------- Ro'yxatdan o'tish / Kirish ----------
   $('authSubmitBtn').addEventListener('click', async () => {
+    if (authMethod === 'phone') {
+      $('authErr').classList.remove('show');
+      if (otpSent) { await verifyOtp(); } else { await sendOtp(); }
+      return;
+    }
     const email = $('authEmail').value.trim();
     const password = $('authPassword').value;
     $('authErr').classList.remove('show');
@@ -1235,6 +2247,7 @@
         const username = await generateUniqueUsername(name);
         await db.collection('users').doc(cred.user.uid).set({
           displayName: name,
+          displayNameLower: name.toLowerCase(),
           username: username,
           bio: '',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1270,6 +2283,60 @@
       $('bioView').textContent = "Hali bio qo'shilmagan.";
       $('bioView').classList.add('empty');
     }
+    if (profileViewMode === 'other' && uid && auth.currentUser && uid !== auth.currentUser.uid) {
+      renderProfileContactActions(uid, data);
+    } else {
+      $('profileContactActions').classList.add('hidden');
+      $('profileContactActions').innerHTML = '';
+    }
+  }
+  let profileOtherUid = null;
+  let profileOtherData = null;
+  function renderProfileContactActions(uid, data){
+    profileOtherUid = uid;
+    profileOtherData = data || profileOtherData;
+    const wrap = $('profileContactActions');
+    const status = contactStatusFor(uid);
+    const name = (profileOtherData && profileOtherData.displayName) || '';
+    const username = (profileOtherData && profileOtherData.username) || '';
+    const avatarUrl = (profileOtherData && profileOtherData.avatarUrl) || '';
+    let html = `<button class="pillBtn pillGhost" id="profileMsgBtn">💬 Xabar</button>`;
+    if (status === 'contact') {
+      html += `<button class="pillBtn pillGhost" id="profileContactBtn" data-action="remove">Kontaktdan olib tashlash</button>`;
+    } else if (status === 'outgoing') {
+      html += `<button class="pillBtn pillGhost" id="profileContactBtn" data-action="cancel">So'rovni bekor qilish</button>`;
+    } else if (status === 'incoming') {
+      html += `<button class="pillBtn pillAccept" id="profileContactBtn" data-action="accept">Qabul qilish</button>`;
+    } else {
+      html += `<button class="pillBtn pillAdd" id="profileContactBtn" data-action="add">➕ Kontakt qo'shish</button>`;
+    }
+    const isBlocked = ((currentUserDoc && currentUserDoc.blockedUids) || []).includes(uid);
+    html += `<button class="pillBtn pillGhost" id="profileBlockBtn" style="color:var(--coral); border-color:rgba(255,107,107,0.4);">${isBlocked ? "✅ Blokdan chiqarish" : "🚫 Bloklash"}</button>`;
+    wrap.innerHTML = html;
+    wrap.classList.remove('hidden');
+    $('profileMsgBtn').onclick = () => openDirectChat(uid, name, avatarUrl);
+    $('profileBlockBtn').onclick = () => {
+      if (isBlocked) {
+        unblockUser(uid);
+      } else if (confirm("Bu foydalanuvchini bloklaysizmi? U sizga xabar yubora olmaydi.")) {
+        blockUser(uid);
+      }
+    };
+    $('profileContactBtn').onclick = async (e) => {
+      e.currentTarget.disabled = true;
+      try {
+        if (status === 'contact') { if (confirm(`${name || 'Foydalanuvchi'}ni kontaktlardan olib tashlaymizmi?`)) await removeContact(uid); }
+        else if (status === 'outgoing') await cancelContactRequest(uid);
+        else if (status === 'incoming') await acceptContactRequest(uid);
+        else await sendContactRequest(uid, name, username, avatarUrl);
+      } catch(err) { contactErrorAlert(err); }
+      e.currentTarget.disabled = false;
+    };
+  }
+  function refreshOpenProfileContactActions(){
+    if (profileViewMode === 'other' && profileOtherUid && !$('profileView').classList.contains('hidden')) {
+      renderProfileContactActions(profileOtherUid, profileOtherData);
+    }
   }
   function renderProfile(uid, data){
     currentUserDoc = data;
@@ -1278,6 +2345,393 @@
     $('settingsName').textContent = data.displayName || 'Foydalanuvchi';
     $('settingsHandle').textContent = '@' + (data.username || uid.slice(0,8));
   }
+
+  // ---------- Sozlamalar: umumiy localStorage yordamchilari ----------
+  function loadSetting(key, fallback){
+    try { const v = localStorage.getItem(key); return v === null ? fallback : v; } catch(e) { return fallback; }
+  }
+  function saveSetting(key, value){
+    try { localStorage.setItem(key, value); } catch(e) {}
+  }
+
+  // ---------- Foydalanuvchini bloklash / blokdan chiqarish ----------
+  const otherUserMetaCache = {}; // uid -> {lastSeenPrivacy, blockedUids}
+  let knownChatUids = new Set();
+
+  async function fetchUserMeta(uid){
+    if (otherUserMetaCache[uid]) return otherUserMetaCache[uid];
+    try {
+      const snap = await db.collection('users').doc(uid).get();
+      const d = snap.exists ? snap.data() : {};
+      otherUserMetaCache[uid] = { lastSeenPrivacy: d.lastSeenPrivacy || 'everyone', blockedUids: d.blockedUids || [] };
+    } catch(e) {
+      otherUserMetaCache[uid] = { lastSeenPrivacy: 'everyone', blockedUids: [] };
+    }
+    return otherUserMetaCache[uid];
+  }
+  function canShowPresence(uid){
+    if (!uid || !auth.currentUser) return false;
+    if (uid === auth.currentUser.uid) return true;
+    const meta = otherUserMetaCache[uid];
+    const pr = meta ? meta.lastSeenPrivacy : 'everyone';
+    if (pr === 'nobody') return false;
+    if (pr === 'contacts') return knownChatUids.has(uid);
+    return true;
+  }
+
+  async function blockUser(uid){
+    const user = auth.currentUser;
+    if (!user || !uid) return;
+    try {
+      await db.collection('users').doc(user.uid).update({ blockedUids: firebase.firestore.FieldValue.arrayUnion(uid) });
+      currentUserDoc.blockedUids = Array.from(new Set([...(currentUserDoc.blockedUids || []), uid]));
+      afterBlockStateChange(uid);
+    } catch(e) { alert('Xatolik: ' + e.message); }
+  }
+  async function unblockUser(uid){
+    const user = auth.currentUser;
+    if (!user || !uid) return;
+    try {
+      await db.collection('users').doc(user.uid).update({ blockedUids: firebase.firestore.FieldValue.arrayRemove(uid) });
+      currentUserDoc.blockedUids = (currentUserDoc.blockedUids || []).filter(x => x !== uid);
+      afterBlockStateChange(uid);
+    } catch(e) { alert('Xatolik: ' + e.message); }
+  }
+  function afterBlockStateChange(uid){
+    refreshOpenProfileContactActions();
+    if (currentChatOtherUid === uid) updateChatBlockedState();
+    if (!$('subPageView').classList.contains('hidden') && $('subPageTitle').textContent === 'Maxfiylik') {
+      $('subPageContent').innerHTML = buildPrivacyHtml();
+    }
+  }
+
+  // ---------- Sozlamalar ich-sahifasi (qayta ishlatiladigan overlay) ----------
+  function openSubPage(title, html){
+    $('subPageTitle').textContent = title;
+    $('subPageContent').innerHTML = html;
+    $('subPageView').classList.remove('hidden');
+  }
+  function closeSubPage(){ $('subPageView').classList.add('hidden'); }
+  $('subPageBackBtn').addEventListener('click', closeSubPage);
+
+  const ABOUT_HTML = `
+    <div class="aboutLogoWrap">
+      <div id="aboutLogoImg" style="width:68px;height:68px;background:url('assets/splash-icon.png') center/contain no-repeat; filter: drop-shadow(0 8px 20px rgba(99,91,255,0.35));"></div>
+      <b>Davra</b>
+      <span>Versiya 1.0.0</span>
+    </div>
+    <p class="aboutText">
+      <b>Davra</b> — do'stlar va yaqinlaringiz bilan tez, oddiy va xavfsiz muloqot qilish uchun yaratilgan messenjer.
+      <br><br>
+      Ushbu ilova <b>Anthropic Claude</b> yordamida ishlab chiqilgan. 💜
+    </p>
+  `;
+
+  const HELP_HTML = `
+    <div class="sectionLabel" style="margin-top:0;">Ko'p so'raladigan savollar</div>
+    <div class="faqItem">
+      <div class="faqQ">Yangi suhbatni qanday boshlash mumkin?<span class="chevron">›</span></div>
+      <div class="faqA">Chatlar bo'limida yuqori o'ngdagi ➕ tugmasini bosing, so'ng kontaktlar ro'yxatidan birini tanlang — suhbat avtomatik ochiladi.</div>
+    </div>
+    <div class="faqItem">
+      <div class="faqQ">Xabarni qanday tahrirlash yoki o'chirish mumkin?<span class="chevron">›</span></div>
+      <div class="faqA">O'zingiz yuborgan xabarni bosib turing (yoki ustiga bosing) — chiqqan menyudan "Tahrirlash" yoki "O'chirish"ni tanlang.</div>
+    </div>
+    <div class="faqItem">
+      <div class="faqQ">Profil rasmimni qanday o'zgartiraman?</div>
+      <div class="faqA">Profil bo'limiga o'ting, "Profilni tahrirlash"ni bosing, so'ng "Galereyadan tanlash" orqali rasm yuklang.</div>
+    </div>
+    <div class="faqItem">
+      <div class="faqQ">Xabarlarim va rasmlarim xavfsizmi?<span class="chevron">›</span></div>
+      <div class="faqA">Xabarlaringiz Firebase infratuzilmasida saqlanadi va faqat suhbat ishtirokchilariga ko'rinadi.</div>
+    </div>
+
+    <div class="sectionLabel" style="margin-top:24px;">Bog'lanish</div>
+    <a href="https://t.me/Tsukiyo_Yoruka" target="_blank" rel="noopener" class="contactBtn">
+      <div class="settingIcon" style="background:rgba(76,124,255,0.16); color:var(--accent-2);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+      </div>
+      <div><b>Telegram orqali</b><span>@Tsukiyo_Yoruka</span></div>
+    </a>
+    <a href="mailto:tavobkhonovvahobkhon@gmail.com" class="contactBtn">
+      <div class="settingIcon" style="background:rgba(99,91,255,0.16); color:var(--accent);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+      </div>
+      <div><b>Email orqali</b><span>tavobkhonovvahobkhon@gmail.com</span></div>
+    </a>
+  `;
+
+  // ---------- Maxfiylik sahifasi ----------
+  function buildPrivacyHtml(){
+    const cur = (currentUserDoc && currentUserDoc.lastSeenPrivacy) || 'everyone';
+    const opts = [
+      { key:'everyone', label:'Hammaga', sub:"Oxirgi ko'rilgan vaqtingizni hamma ko'radi" },
+      { key:'contacts', label:'Faqat kontaktlarga', sub:"Faqat suhbatlashgan foydalanuvchilar ko'radi" },
+      { key:'nobody', label:'Hech kimga', sub:"Oxirgi ko'rilgan vaqtingiz hech kimga ko'rinmaydi" },
+    ];
+    const optsHtml = opts.map(o => `
+      <div class="radioRow" data-lastseen="${o.key}">
+        <div class="radioCircle ${o.key === cur ? 'checked' : ''}"></div>
+        <div class="settingBody"><div class="settingTitle">${o.label}</div><div class="settingSub">${o.sub}</div></div>
+      </div>`).join('');
+
+    const blockedIds = (currentUserDoc && currentUserDoc.blockedUids) || [];
+    let blockedHtml;
+    if (!blockedIds.length) {
+      blockedHtml = `<div class="emptyHint">Bloklangan foydalanuvchilar yo'q.</div>`;
+    } else {
+      blockedHtml = blockedIds.map(uid => {
+        const u = allUsersCache.find(x => x.uid === uid);
+        const name = (u && u.displayName) || 'Foydalanuvchi';
+        return `<div class="blockedRow">
+          <div class="chatAvatar" style="width:38px;height:38px;">${avatarInner(u || { displayName:name })}</div>
+          <div class="settingBody" style="flex:1;"><div class="settingTitle">${escapeHtml(name)}</div></div>
+          <button class="unblockBtn" data-uid="${uid}">Blokdan chiqarish</button>
+        </div>`;
+      }).join('');
+    }
+
+    return `
+      <div class="sectionLabel" style="margin-top:0;">Oxirgi ko'rilgan vaqt</div>
+      ${optsHtml}
+      <div class="sectionLabel" style="margin-top:26px;">Bloklangan foydalanuvchilar</div>
+      <div id="blockedListWrap">${blockedHtml}</div>
+    `;
+  }
+  async function openPrivacyPage(){
+    if (!allUsersCache.length) { try { await loadAllUsers(); } catch(e){} }
+    openSubPage('Maxfiylik', buildPrivacyHtml());
+  }
+  async function saveLastSeenPrivacy(val){
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      await db.collection('users').doc(user.uid).update({ lastSeenPrivacy: val });
+      currentUserDoc.lastSeenPrivacy = val;
+    } catch(e) { console.error('Maxfiylik sozlamasi xatosi:', e); }
+  }
+
+  // ---------- Hisob sahifasi ----------
+  function buildAccountHtml(){
+    const user = auth.currentUser;
+    const email = (user && user.email) || '—';
+    const hasPasswordProvider = !!(user && user.providerData.some(p => p.providerId === 'password'));
+    const passwordSection = hasPasswordProvider ? `
+      <div class="sectionLabel" style="margin-top:24px;">Parolni o'zgartirish</div>
+      <div class="field"><label>Joriy parol</label><input type="password" id="curPasswordInput" autocomplete="current-password"></div>
+      <div class="field"><label>Yangi parol</label><input type="password" id="newPasswordInput" autocomplete="new-password"></div>
+      <div class="usernameErr" id="passwordErr"></div>
+      <button class="primaryBtn" id="changePasswordBtn" style="margin-top:4px;">Parolni yangilash</button>
+    ` : `
+      <div class="sectionLabel" style="margin-top:24px;">Parol</div>
+      <div class="accountInfoRow"><div class="settingSub">Siz Google orqali kirgansiz — parolni Google hisobingiz sozlamalaridan boshqarasiz.</div></div>
+    `;
+    return `
+      <div class="sectionLabel" style="margin-top:0;">Email</div>
+      <div class="accountInfoRow"><div class="settingTitle">${escapeHtml(email)}</div><div class="settingSub">Hisobingizga bog'langan email</div></div>
+      ${passwordSection}
+      <div class="sectionLabel" style="margin-top:32px; color:var(--coral);">Xavfli hudud</div>
+      <button class="dangerBtn" id="deleteAccountBtn">Hisobni butunlay o'chirish</button>
+    `;
+  }
+  function openAccountPage(){
+    openSubPage('Hisob', buildAccountHtml());
+  }
+  async function handleChangePassword(){
+    const user = auth.currentUser;
+    if (!user || !user.email) return;
+    const curPw = $('curPasswordInput').value;
+    const newPw = $('newPasswordInput').value;
+    const errEl = $('passwordErr');
+    errEl.style.color = '';
+    errEl.textContent = '';
+    if (!curPw || !newPw) { errEl.textContent = "Ikkala maydonni ham to'ldiring."; return; }
+    if (newPw.length < 6) { errEl.textContent = "Yangi parol kamida 6 belgidan iborat bo'lishi kerak."; return; }
+    const btn = $('changePasswordBtn');
+    btn.disabled = true; btn.textContent = 'Yangilanmoqda...';
+    try {
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, curPw);
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPw);
+      $('curPasswordInput').value = '';
+      $('newPasswordInput').value = '';
+      errEl.style.color = 'var(--mint)';
+      errEl.textContent = 'Parol muvaffaqiyatli yangilandi.';
+    } catch(e) {
+      errEl.textContent = e.code === 'auth/wrong-password' ? "Joriy parol noto'g'ri." : ('Xatolik: ' + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Parolni yangilash';
+    }
+  }
+  async function handleDeleteAccount(){
+    const user = auth.currentUser;
+    if (!user) return;
+    const sure = confirm("Hisobingizni butunlay o'chirmoqchimisiz?\n\nBu amalni ortga qaytarib bo'lmaydi — profilingiz va sozlamalaringiz butunlay o'chiriladi.");
+    if (!sure) return;
+    const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+    try {
+      if (hasPasswordProvider) {
+        const pw = prompt("Xavfsizlik uchun joriy parolingizni kiriting:");
+        if (!pw) return;
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, pw);
+        await user.reauthenticateWithCredential(cred);
+      } else {
+        await user.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
+      }
+      await db.collection('users').doc(user.uid).delete();
+      await user.delete();
+    } catch(e) {
+      alert('Xatolik: ' + (e.code === 'auth/wrong-password' ? "Parol noto'g'ri." : e.message));
+    }
+  }
+
+  // ---------- Ma'lumot va xotira sahifasi ----------
+  function buildStorageHtml(){
+    return `
+      <div class="sectionLabel" style="margin-top:0;">Xotiradan foydalanish</div>
+      <div id="storageUsageWrap"><div class="storageStatRow"><span>Yuklanmoqda...</span></div></div>
+
+      <div class="sectionLabel" style="margin-top:26px;">Keshni tozalash</div>
+      <div class="settingSub" style="padding:0 4px 12px;">Ilova tomonidan saqlangan vaqtinchalik fayllar va ko'rinish sozlamalari tozalanadi. Xabarlaringiz va profilingiz o'chmaydi.</div>
+      <button class="dangerBtn" id="clearCacheBtn" style="background:rgba(99,91,255,0.12); color:var(--accent); border-color:rgba(99,91,255,0.3);">🧹 Keshni tozalash</button>
+      <div id="clearCacheStatus" style="text-align:center; font-size:12.5px; color:var(--text-dim); margin-top:10px;"></div>
+    `;
+  }
+  function openStoragePage(){
+    openSubPage("Ma'lumot va xotira", buildStorageHtml());
+    refreshStorageUsage();
+  }
+  async function refreshStorageUsage(){
+    const wrap = $('storageUsageWrap');
+    if (!wrap) return;
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const { usage, quota } = await navigator.storage.estimate();
+        const usageMb = ((usage || 0) / (1024 * 1024)).toFixed(1);
+        const pct = quota ? Math.min(100, ((usage || 0) / quota) * 100) : 0;
+        wrap.innerHTML = `
+          <div class="storageStatRow"><span>Ishlatilgan xotira</span><b>${usageMb} MB</b></div>
+          <div class="storageBar"><div class="storageBarFill" style="width:${pct}%;"></div></div>
+        `;
+      } catch(e) {
+        wrap.innerHTML = `<div class="settingSub">Xotira ma'lumotini olib bo'lmadi.</div>`;
+      }
+    } else {
+      wrap.innerHTML = `<div class="settingSub">Brauzeringiz bu ma'lumotni ko'rsatishni qo'llamaydi.</div>`;
+    }
+  }
+  async function clearAppCache(){
+    const btn = $('clearCacheBtn');
+    const status = $('clearCacheStatus');
+    btn.disabled = true;
+    status.textContent = 'Tozalanmoqda...';
+    try {
+      Object.keys(localStorage).filter(k => k.startsWith('davra_')).forEach(k => localStorage.removeItem(k));
+      if (window.caches && caches.keys) {
+        const names = await caches.keys();
+        await Promise.all(names.map(n => caches.delete(n)));
+      }
+      applyChatBackground('default');
+      applyFontSize('medium');
+      status.textContent = 'Kesh tozalandi.';
+      refreshStorageUsage();
+    } catch(e) {
+      status.textContent = 'Xatolik: ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  const CHAT_BGS = [
+    { key:'default', style:'background: var(--bg-2);' },
+    { key:'purple', style:'background: linear-gradient(135deg,#635BFF,#4C7CFF);' },
+    { key:'sunset', style:'background: linear-gradient(135deg,#FF74D3,#FFB86B);' },
+    { key:'forest', style:'background: linear-gradient(135deg,#22C55E,#0D9488);' },
+    { key:'ocean', style:'background: linear-gradient(135deg,#4C7CFF,#22D3EE);' },
+    { key:'mono', style:'background:#1a1a2e;' },
+    { key:'rose', style:'background: linear-gradient(135deg,#FF6B6B,#FF74D3);' },
+    { key:'mint', style:'background: linear-gradient(135deg,#4DE0C3,#635BFF);' },
+  ];
+  const CHAT_SETTINGS_HTML = `
+    <div class="sectionLabel" style="margin-top:0;">Chat foni</div>
+    <div class="bgSwatchGrid" id="bgSwatchGrid">
+      ${CHAT_BGS.map(b => `<div class="bgSwatch" data-bg="${b.key}" style="${b.style}"><span class="checkDot">✓</span></div>`).join('')}
+    </div>
+
+    <div class="sectionLabel" style="margin-top:26px;">Matn o'lchami</div>
+    <div class="fontSizeRow" id="fontSizeRow">
+      <div class="fontSizeOpt" data-fs="small"><span class="fsPreview" style="font-size:12px;">Aa</span>Kichik</div>
+      <div class="fontSizeOpt" data-fs="medium"><span class="fsPreview" style="font-size:16px;">Aa</span>O'rta</div>
+      <div class="fontSizeOpt" data-fs="large"><span class="fsPreview" style="font-size:20px;">Aa</span>Katta</div>
+    </div>
+  `;
+
+  function applyChatBackground(key){
+    const found = CHAT_BGS.find(b => b.key === key) || CHAT_BGS[0];
+    const cssVal = found.style.replace('background:', '').replace(';', '').trim();
+    $('messagesArea').style.background = cssVal;
+  }
+  function applyFontSize(size){
+    document.body.classList.remove('fs-small', 'fs-large');
+    if (size === 'small') document.body.classList.add('fs-small');
+    if (size === 'large') document.body.classList.add('fs-large');
+  }
+  // Ilova ochilishida saqlangan sozlamalarni darhol qo'llaymiz
+  applyChatBackground(loadSetting('davra_chat_bg', 'default'));
+  applyFontSize(loadSetting('davra_font_size', 'medium'));
+
+  function initChatSettingsPage(){
+    const bg = loadSetting('davra_chat_bg', 'default');
+    const fs = loadSetting('davra_font_size', 'medium');
+    const swatchEl = document.querySelector(`.bgSwatch[data-bg="${bg}"]`);
+    if (swatchEl) swatchEl.classList.add('active');
+    const fsEl = document.querySelector(`.fontSizeOpt[data-fs="${fs}"]`);
+    if (fsEl) fsEl.classList.add('active');
+  }
+
+  $('subPageContent').addEventListener('click', (e) => {
+    const faqQ = e.target.closest('.faqQ');
+    if (faqQ) { faqQ.parentElement.classList.toggle('open'); return; }
+
+    const swatch = e.target.closest('.bgSwatch');
+    if (swatch) {
+      document.querySelectorAll('.bgSwatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+      saveSetting('davra_chat_bg', swatch.dataset.bg);
+      applyChatBackground(swatch.dataset.bg);
+      return;
+    }
+
+    const fsOpt = e.target.closest('.fontSizeOpt');
+    if (fsOpt) {
+      document.querySelectorAll('.fontSizeOpt').forEach(o => o.classList.remove('active'));
+      fsOpt.classList.add('active');
+      saveSetting('davra_font_size', fsOpt.dataset.fs);
+      applyFontSize(fsOpt.dataset.fs);
+      return;
+    }
+
+    const radioRow = e.target.closest('.radioRow[data-lastseen]');
+    if (radioRow) {
+      const val = radioRow.dataset.lastseen;
+      document.querySelectorAll('.radioRow[data-lastseen] .radioCircle').forEach(c => c.classList.remove('checked'));
+      radioRow.querySelector('.radioCircle').classList.add('checked');
+      saveLastSeenPrivacy(val);
+      return;
+    }
+
+    const unblockBtn = e.target.closest('.unblockBtn');
+    if (unblockBtn) { unblockUser(unblockBtn.dataset.uid); return; }
+
+    const changePwBtn = e.target.closest('#changePasswordBtn');
+    if (changePwBtn) { handleChangePassword(); return; }
+
+    const delAccBtn = e.target.closest('#deleteAccountBtn');
+    if (delAccBtn) { handleDeleteAccount(); return; }
+
+    const clearCacheBtn = e.target.closest('#clearCacheBtn');
+    if (clearCacheBtn) { clearAppCache(); return; }
+  });
 
   function buildEmojiPicker(){ /* eskirgan: endi rasm asosidagi avatar ishlatiladi */ }
 
@@ -1356,7 +2810,7 @@
           return;
         }
       }
-      const updateData = { displayName: name, username: username, bio: bio };
+      const updateData = { displayName: name, displayNameLower: name.toLowerCase(), username: username, bio: bio };
       if (pendingAvatarUrl !== null) updateData.avatarUrl = pendingAvatarUrl;
       await db.collection('users').doc(user.uid).update(updateData);
       currentUserDoc.displayName = name;
@@ -1456,6 +2910,7 @@
 
   function renderChatsList(chats){
     const uid = auth.currentUser.uid;
+    knownChatUids = new Set(chats.map(c => (c.members || []).find(m => m !== uid)).filter(Boolean));
     $('chatsEmpty').classList.toggle('hidden', chats.length > 0);
     $('chatsList').innerHTML = chats.map(c => {
       const otherUid = (c.members || []).find(m => m !== uid);
@@ -1464,7 +2919,7 @@
       const preview = c.lastMessage ? escapeHtml(c.lastMessage) : "Hali xabar yo'q";
       const time = c.lastMessageAt ? timeAgo(c.lastMessageAt) : '';
       return `<div class="chatRow" data-id="${c.id}" data-other-uid="${otherUid||''}" data-name="${escapeHtml(name)}" data-avatar-url="${escapeHtml(avatarUrl)}">
-        <div class="chatRowAvatarWrap" title="Profilni ko'rish">
+        <div class="chatRowAvatarWrap" title="Suhbatni ochish">
           <div class="chatAvatar">${avatarInner({displayName:name, avatarUrl})}</div>
           <div class="rowOnlineDot hidden" data-presence-dot="${otherUid||''}"></div>
         </div>
@@ -1531,16 +2986,17 @@
       const uid = dot.dataset.presenceDot;
       if (!uid) return;
       const p = presenceCache[uid];
-      dot.classList.toggle('hidden', !(p && p.state === 'online'));
+      dot.classList.toggle('hidden', !(p && p.state === 'online' && canShowPresence(uid)));
       if (!presenceListeners[uid]) subscribePresence(uid);
     });
   }
   function subscribePresence(uid){
+    fetchUserMeta(uid).then(() => refreshRowPresenceDots());
     const ref = rtdb.ref('presence/' + uid);
     const cb = (snap) => {
       presenceCache[uid] = snap.val() || null;
       document.querySelectorAll(`[data-presence-dot="${uid}"]`).forEach(dot => {
-        dot.classList.toggle('hidden', !(presenceCache[uid] && presenceCache[uid].state === 'online'));
+        dot.classList.toggle('hidden', !(presenceCache[uid] && presenceCache[uid].state === 'online' && canShowPresence(uid)));
       });
       if (currentChatOtherUid === uid) renderChatHeaderStatus();
     };
@@ -1562,6 +3018,7 @@
       return;
     }
     el.classList.remove('typing');
+    if (!canShowPresence(currentChatOtherUid)) { el.textContent = ''; return; }
     const p = currentChatOtherUid ? presenceCache[currentChatOtherUid] : null;
     if (p && p.state === 'online') {
       el.innerHTML = '<span class="onlineDot"></span> onlayn';
@@ -1594,10 +3051,7 @@
   $('chatsList').addEventListener('click', (e) => {
     const row = e.target.closest('.chatRow');
     if (!row) return;
-    if (e.target.closest('.chatRowAvatarWrap') && row.dataset.otherUid) {
-      openUserProfile(row.dataset.otherUid, { displayName: row.dataset.name, avatarUrl: row.dataset.avatarUrl });
-      return;
-    }
+    // Profilga faqat suhbat ichidan (yuqoridagi ism/avatar orqali) o'tiladi — bu yerda har doim chat ochiladi
     openDirectChat(row.dataset.otherUid, row.dataset.name, row.dataset.avatarUrl);
   });
 
@@ -1624,11 +3078,13 @@
     $('chatDetailAvatar').innerHTML = avatarInner({ displayName: otherName, avatarUrl: otherAvatarUrl });
     $('chatDetailName').textContent = otherName || 'Foydalanuvchi';
     $('pickerOverlay').classList.add('hidden');
+    document.body.classList.remove('overlayActive');
     $('chatDetail').classList.remove('hidden');
     $('messagesArea').innerHTML = '<div id="chatEmptyState">Yuklanmoqda...</div>';
     if (!presenceListeners[otherUid]) subscribePresence(otherUid);
     renderChatHeaderStatus();
     watchTyping(chatId, otherUid);
+    updateChatBlockedState();
 
     const names = {}; names[user.uid] = (currentUserDoc && currentUserDoc.displayName) || 'Foydalanuvchi'; names[otherUid] = otherName;
     const avatarUrls = {}; avatarUrls[user.uid] = (currentUserDoc && currentUserDoc.avatarUrl) || ''; avatarUrls[otherUid] = otherAvatarUrl || '';
@@ -1638,9 +3094,38 @@
     startMessagesListener(chatId);
   }
 
+  // ---------- Chatdagi bloklash holatini ko'rsatish ----------
+  async function updateChatBlockedState(){
+    const otherUid = currentChatOtherUid;
+    if (!otherUid || !auth.currentUser) return;
+    const iBlockedThem = ((currentUserDoc && currentUserDoc.blockedUids) || []).includes(otherUid);
+    const meta = await fetchUserMeta(otherUid);
+    if (currentChatOtherUid !== otherUid) return; // shu orada boshqa chatga o'tib ketilgan bo'lishi mumkin
+    const theyBlockedMe = (meta.blockedUids || []).includes(auth.currentUser.uid);
+    const banner = $('blockedBanner');
+    if (iBlockedThem) {
+      banner.innerHTML = "Siz bu foydalanuvchini bloklagansiz. <button id=\"chatUnblockBtn\">Blokdan chiqarish</button>";
+      banner.classList.add('show');
+      $('messageInputBar').classList.add('hidden');
+    } else if (theyBlockedMe) {
+      banner.textContent = "Bu foydalanuvchiga xabar yubora olmaysiz.";
+      banner.classList.add('show');
+      $('messageInputBar').classList.add('hidden');
+    } else {
+      banner.classList.remove('show');
+      banner.innerHTML = '';
+      $('messageInputBar').classList.remove('hidden');
+    }
+  }
+  $('blockedBanner').addEventListener('click', (e) => {
+    if (e.target.id === 'chatUnblockBtn' && currentChatOtherUid) unblockUser(currentChatOtherUid);
+  });
+
   function startMessagesListener(chatId){
     if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
-    messagesUnsub = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt','asc')
+    // To'liq tarix: barcha xabarlar yaratilgan vaqti bo'yicha o'sish tartibida tinglanadi
+    messagesUnsub = db.collection('chats').doc(chatId).collection('messages')
+      .orderBy('createdAt','asc')
       .onSnapshot(snap => {
         const msgs = [];
         snap.forEach(doc => msgs.push(Object.assign({ id: doc.id }, doc.data())));
@@ -1651,8 +3136,16 @@
 
     if (chatDocUnsub) { chatDocUnsub(); chatDocUnsub = null; }
     chatDocUnsub = db.collection('chats').doc(chatId).onSnapshot(snap => {
+      const prevData = currentChatDocData;
       currentChatDocData = snap.exists ? snap.data() : null;
-      renderMessages(currentMsgsList);
+      // Faqat "o'qildi" holati chindan o'zgarganda qayta chizamiz — masalan o'zimizning
+      // markChatRead yozuvimiz shu snapshotni qayta qo'zg'atib, butun ro'yxatni behuda qayta chizmasin
+      const otherUid = currentChatOtherUid;
+      const prevRead = prevData && otherUid && prevData.lastRead ? prevData.lastRead[otherUid] : null;
+      const newRead = currentChatDocData && otherUid && currentChatDocData.lastRead ? currentChatDocData.lastRead[otherUid] : null;
+      const prevMs = (prevRead && prevRead.toDate) ? prevRead.toDate().getTime() : 0;
+      const newMs = (newRead && newRead.toDate) ? newRead.toDate().getTime() : 0;
+      if (prevMs !== newMs) renderMessages(currentMsgsList);
     });
   }
   async function markChatRead(chatId){
@@ -1668,6 +3161,10 @@
   function renderMessages(msgs){
     const uid = auth.currentUser.uid;
     const area = $('messagesArea');
+    // Faqat foydalanuvchi allaqachon pastda bo'lsa avtomatik pastga tushiramiz —
+    // eski xabarlarni o'qiyotganda reaksiya/o'qildi belgisi kelsa, joyidan uzilmasin
+    const NEAR_BOTTOM_PX = 120;
+    const wasNearBottom = (area.scrollHeight - area.scrollTop - area.clientHeight) < NEAR_BOTTOM_PX;
     lastMsgsById = {};
     msgs.forEach(m => { lastMsgsById[m.id] = m; });
     if (msgs.length === 0) {
@@ -1695,13 +3192,16 @@
       }
       return `<div class="msgRow ${mine ? 'me' : ''}">
         <div class="msgBubble" data-id="${m.id}" data-mine="${mine ? '1':'0'}">
-          ${replyHtml}<span class="msgText">${escapeHtml(m.text)}${m.edited ? '<span class="editedTag">tahrirlangan</span>' : ''}</span>
+          ${replyHtml}${m.mediaUrl && m.mediaType==='audio' ? `<div class="voiceBubble"><button class="voicePlay" onclick="playVoice(this)">▶</button><div class="voiceWave">${'<span></span>'.repeat(18)}</div><span class="voiceTime">${m.duration||0}s</span><audio src="${m.mediaUrl}"></audio></div>` : ''}
+          ${m.mediaUrl && m.mediaType==='video' ? `<video controls style="max-width:220px;border-radius:12px" src="${m.mediaUrl}"></video>` : ''}
+          ${m.fileName ? `<div>📎 ${escapeHtml(m.fileName)}</div>` : ''}
+          ${m.text ? `<span class="msgText">${escapeHtml(m.text)}${m.edited ? '<span class="editedTag">tahrirlangan</span>' : ''}</span>` : ''}
           <span class="msgTime">${fmtTime(m.createdAt)}${checkHtml}</span>
           ${reactionsHtml ? `<div class="reactionsRow">${reactionsHtml}</div>` : ''}
         </div>
       </div>`;
     }).join('');
-    area.scrollTop = area.scrollHeight;
+    if (wasNearBottom) area.scrollTop = area.scrollHeight;
   }
 
   // ---------- Composer holati: oddiy / javob / tahrirlash ----------
@@ -1732,7 +3232,7 @@
   async function sendCurrentMessage(){
     const text = $('messageInput').value.trim();
     const user = auth.currentUser;
-    if (!text || !currentChatId || !user) return;
+    if ((!text && !window.pendingMedia) || !currentChatId || !user) return;
     $('sendMsgBtn').disabled = true;
     clearTimeout(typingTimeout);
     if (isTypingNow) { isTypingNow = false; setMyTyping(currentChatId, user.uid, false); }
@@ -1743,6 +3243,12 @@
         });
       } else {
         const payload = { senderUid: user.uid, text: text, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+        if (window.pendingMedia) {
+          payload.mediaType = window.pendingMedia.type;
+          payload.mediaUrl = URL.createObjectURL(window.pendingMedia.blob);
+          if (window.pendingMedia.duration) payload.duration = window.pendingMedia.duration;
+          window.pendingMedia = null;
+        }
         if (composerMode && composerMode.type === 'reply') {
           payload.replyToText = composerMode.text;
           payload.replyToSender = composerMode.senderName;
@@ -1833,6 +3339,165 @@
     clearComposerMode();
   });
 
+  // ---------- Kontaktlar tizimi: so'rov yuborish / qabul qilish / olib tashlash ----------
+  let myContactsMap = {};     // contactUid -> {uid, displayName, username, avatarUrl}
+  let incomingReqMap = {};    // fromUid -> so'rov hujjati
+  let outgoingReqMap = {};    // toUid -> so'rov hujjati
+  let contactsUnsub = null;
+  let incomingReqUnsub = null;
+  let outgoingReqUnsub = null;
+
+  function reqId(fromUid, toUid){ return fromUid + '_' + toUid; }
+
+  // Kontakt amallari xatoligini foydalanuvchiga ko'rinadigan qilib ko'rsatish
+  // (aks holda faqat konsolga yozilib, tugma "hech narsa qilmagandek" ko'rinadi)
+  function contactErrorAlert(err){
+    console.error(err);
+    if (err && err.code === 'permission-denied') {
+      alert("Amalni bajarib bo'lmadi: Firestore xavfsizlik qoidalari (security rules) 'contacts' va 'contactRequests' to'plamlariga yozishga ruxsat bermayapti. Bu qoidalar hali sozlanmagan bo'lishi mumkin.");
+    } else {
+      alert('Xatolik yuz berdi: ' + ((err && err.message) || err));
+    }
+  }
+
+  function contactStatusFor(otherUid){
+    if (!otherUid) return 'none';
+    if (myContactsMap[otherUid]) return 'contact';
+    if (outgoingReqMap[otherUid]) return 'outgoing';
+    if (incomingReqMap[otherUid]) return 'incoming';
+    return 'none';
+  }
+
+  async function sendContactRequest(otherUid, otherName, otherUsername, otherAvatarUrl){
+    const me = auth.currentUser.uid;
+    if (!otherUid || otherUid === me || myContactsMap[otherUid] || outgoingReqMap[otherUid]) return;
+    if (incomingReqMap[otherUid]) { await acceptContactRequest(otherUid); return; } // ular avval so'rov yuborgan - qabul qilamiz
+    await db.collection('contactRequests').doc(reqId(me, otherUid)).set({
+      from: me, to: otherUid,
+      fromName: (currentUserDoc && currentUserDoc.displayName) || '',
+      fromUsername: (currentUserDoc && currentUserDoc.username) || '',
+      fromAvatarUrl: (currentUserDoc && currentUserDoc.avatarUrl) || '',
+      toName: otherName || '', toUsername: otherUsername || '', toAvatarUrl: otherAvatarUrl || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+  async function cancelContactRequest(otherUid){
+    const me = auth.currentUser.uid;
+    await db.collection('contactRequests').doc(reqId(me, otherUid)).delete().catch(()=>{});
+  }
+  async function declineContactRequest(otherUid){
+    const me = auth.currentUser.uid;
+    await db.collection('contactRequests').doc(reqId(otherUid, me)).delete().catch(()=>{});
+  }
+  async function acceptContactRequest(otherUid){
+    const me = auth.currentUser.uid;
+    const reqRef = db.collection('contactRequests').doc(reqId(otherUid, me));
+    const reqSnap = await reqRef.get();
+    if (!reqSnap.exists) return;
+    const r = reqSnap.data();
+    const batch = db.batch();
+    batch.set(db.collection('users').doc(me).collection('contacts').doc(otherUid), {
+      uid: otherUid, displayName: r.fromName || '', displayNameLower: (r.fromName||'').toLowerCase(),
+      username: r.fromUsername || '', avatarUrl: r.fromAvatarUrl || '',
+      addedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(db.collection('users').doc(otherUid).collection('contacts').doc(me), {
+      uid: me, displayName: (currentUserDoc && currentUserDoc.displayName) || '', displayNameLower: ((currentUserDoc && currentUserDoc.displayName)||'').toLowerCase(),
+      username: (currentUserDoc && currentUserDoc.username) || '', avatarUrl: (currentUserDoc && currentUserDoc.avatarUrl) || '',
+      addedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.delete(reqRef);
+    await batch.commit();
+  }
+  async function removeContact(otherUid){
+    const me = auth.currentUser.uid;
+    const batch = db.batch();
+    batch.delete(db.collection('users').doc(me).collection('contacts').doc(otherUid));
+    batch.delete(db.collection('users').doc(otherUid).collection('contacts').doc(me));
+    await batch.commit();
+  }
+
+  function updateContactsBadge(n){
+    const badge = $('navContactsBadge');
+    badge.textContent = n > 99 ? '99+' : String(n);
+    badge.classList.toggle('hidden', n <= 0);
+    $('contactReqBanner').classList.toggle('hidden', n <= 0);
+    if (n > 0) $('contactReqBannerSub').textContent = n + " ta yangi so'rov";
+  }
+
+  function renderIncomingRequests(list){
+    $('contactReqEmpty').classList.toggle('hidden', list.length > 0);
+    $('contactReqList').innerHTML = list.map(r => `
+      <div class="reqRow" data-uid="${r.from}">
+        <div class="chatAvatar" style="width:38px;height:38px;font-size:15px;">${avatarInner({ displayName: r.fromName, avatarUrl: r.fromAvatarUrl })}</div>
+        <div class="reqRowBody">
+          <div class="reqRowName">${escapeHtml(r.fromName || 'Foydalanuvchi')}</div>
+          <div class="reqRowSub">${r.fromUsername ? '@'+escapeHtml(r.fromUsername) : "Kontakt so'rovi"}</div>
+        </div>
+        <div class="reqRowActions">
+          <button class="pillBtn pillAccept" data-action="accept">Qabul qilish</button>
+          <button class="pillBtn pillGhost" data-action="decline">Rad etish</button>
+        </div>
+      </div>`).join('');
+  }
+  $('contactReqBanner').addEventListener('click', () => $('contactReqOverlay').classList.remove('hidden'));
+  $('contactReqClose').addEventListener('click', () => $('contactReqOverlay').classList.add('hidden'));
+  $('contactReqOverlay').addEventListener('click', (e) => { if (e.target.id === 'contactReqOverlay') $('contactReqOverlay').classList.add('hidden'); });
+  $('contactReqList').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const row = e.target.closest('.reqRow');
+    const uid = row.dataset.uid;
+    btn.disabled = true;
+    try {
+      if (btn.dataset.action === 'accept') await acceptContactRequest(uid);
+      else await declineContactRequest(uid);
+    } catch(err) { contactErrorAlert(err); btn.disabled = false; }
+  });
+
+  function startContactsRealtime(){
+    if (contactsUnsub) return;
+    const me = auth.currentUser.uid;
+    contactsUnsub = db.collection('users').doc(me).collection('contacts').orderBy('displayNameLower')
+      .onSnapshot(snap => {
+        myContactsMap = {};
+        const list = [];
+        snap.forEach(doc => { const d = Object.assign({ uid: doc.id }, doc.data()); myContactsMap[doc.id] = d; list.push(d); });
+        if (activeTab === 'contacts' && !contactsSearchActive()) renderContactsList(list);
+        refreshOpenProfileContactActions();
+      }, err => console.error('Kontaktlar xatosi:', err));
+    incomingReqUnsub = db.collection('contactRequests').where('to','==',me)
+      .onSnapshot(snap => {
+        incomingReqMap = {};
+        const list = [];
+        snap.forEach(doc => { const d = Object.assign({ id: doc.id }, doc.data()); incomingReqMap[d.from] = d; list.push(d); });
+        renderIncomingRequests(list);
+        updateContactsBadge(list.length);
+        refreshOpenProfileContactActions();
+        if (activeTab === 'contacts' && contactsSearchActive()) reRunContactsSearch();
+      }, err => console.error("Kelgan so'rovlar xatosi:", err));
+    outgoingReqUnsub = db.collection('contactRequests').where('from','==',me)
+      .onSnapshot(snap => {
+        outgoingReqMap = {};
+        snap.forEach(doc => { const d = doc.data(); outgoingReqMap[d.to] = d; });
+        refreshOpenProfileContactActions();
+        if (activeTab === 'contacts' && contactsSearchActive()) reRunContactsSearch();
+      }, err => console.error("Chiquvchi so'rovlar xatosi:", err));
+  }
+  function stopContactsRealtime(){
+    if (contactsUnsub) { contactsUnsub(); contactsUnsub = null; }
+    if (incomingReqUnsub) { incomingReqUnsub(); incomingReqUnsub = null; }
+    if (outgoingReqUnsub) { outgoingReqUnsub(); outgoingReqUnsub = null; }
+    myContactsMap = {}; incomingReqMap = {}; outgoingReqMap = {};
+    updateContactsBadge(0);
+    $('contactReqOverlay').classList.add('hidden');
+  }
+  function contactsSearchActive(){ return !!$('contactsSearch').value.trim(); }
+  function reRunContactsSearch(){
+    const q = $('contactsSearch').value.trim().toLowerCase().replace('@','');
+    runContactsSearch(q);
+  }
+
   function renderContactsList(users){
     $('contactsEmpty').classList.toggle('hidden', users.length > 0);
     const sorted = [...users].sort((a,b) => (a.displayName||'').localeCompare(b.displayName||'', 'uz'));
@@ -1843,7 +3508,7 @@
       const letter = name.charAt(0).toUpperCase();
       if (letter !== lastLetter) { html += `<div class="letterHead">${escapeHtml(letter)}</div>`; lastLetter = letter; }
       html += `<div class="chatRow" data-uid="${u.uid}" data-name="${escapeHtml(name)}" data-avatar-url="${escapeHtml(u.avatarUrl||'')}">
-        <div class="chatRowAvatarWrap" title="Profilni ko'rish">
+        <div class="chatRowAvatarWrap" title="Suhbatni ochish">
           <div class="chatAvatar">${avatarInner(u)}</div>
           <div class="rowOnlineDot hidden" data-presence-dot="${u.uid}"></div>
         </div>
@@ -1851,42 +3516,118 @@
           <div class="chatRowTop"><div class="chatRowName">${escapeHtml(name)}</div></div>
           <div class="chatRowMsg">${u.username ? '@'+escapeHtml(u.username) : "Davra a'zosi"}</div>
         </div>
+        <button class="pillBtn pillGhost pillIcon contactRowAction" data-remove="${u.uid}" title="Kontaktni olib tashlash">✕</button>
       </div>`;
     });
     $('contactsList').innerHTML = html;
     refreshRowPresenceDots();
   }
 
+  function renderContactsSearchResults(users){
+    $('contactsEmpty').classList.toggle('hidden', users.length > 0);
+    const sorted = [...users].sort((a,b) => (a.displayName||'').localeCompare(b.displayName||'', 'uz'));
+    $('contactsList').innerHTML = sorted.map(u => {
+      const name = u.displayName || 'Foydalanuvchi';
+      const status = contactStatusFor(u.uid);
+      let actionHtml;
+      if (status === 'contact') actionHtml = `<span class="contactStatusTag">✓ Kontakt</span>`;
+      else if (status === 'outgoing') actionHtml = `<button class="pillBtn pillGhost" data-action="cancel" data-uid="${u.uid}">Bekor qilish</button>`;
+      else if (status === 'incoming') actionHtml = `<button class="pillBtn pillAccept" data-action="accept" data-uid="${u.uid}">Qabul qilish</button>`;
+      else actionHtml = `<button class="pillBtn pillAdd" data-action="add" data-uid="${u.uid}" data-name="${escapeHtml(name)}" data-username="${escapeHtml(u.username||'')}" data-avatar-url="${escapeHtml(u.avatarUrl||'')}">Qo'shish</button>`;
+      return `<div class="chatRow" data-uid="${u.uid}" data-name="${escapeHtml(name)}" data-avatar-url="${escapeHtml(u.avatarUrl||'')}" data-status="${status}">
+        <div class="chatRowAvatarWrap">
+          <div class="chatAvatar">${avatarInner(u)}</div>
+        </div>
+        <div class="chatRowBody">
+          <div class="chatRowTop"><div class="chatRowName">${escapeHtml(name)}</div></div>
+          <div class="chatRowMsg">${u.username ? '@'+escapeHtml(u.username) : "Davra a'zosi"}</div>
+        </div>
+        <div class="contactRowAction">${actionHtml}</div>
+      </div>`;
+    }).join('');
+  }
+
   async function openContactsTab(){
     $('contactsSearch').value = '';
-    $('contactsList').innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Yuklanmoqda...</div>';
-    await loadAllUsers();
-    renderContactsList(allUsersCache);
+    renderContactsList(Object.values(myContactsMap));
   }
+  const runContactsSearch = debounce(async (q) => {
+    if (!q) { renderContactsList(Object.values(myContactsMap)); return; }
+    try {
+      const results = await searchUsersRemote(q);
+      // agar shu orada input o'zgargan bo'lsa, eski natijani chizmaymiz
+      if ($('contactsSearch').value.trim().toLowerCase().replace('@','') === q) renderContactsSearchResults(results);
+    } catch(e) { console.error('Qidiruv xatosi:', e); }
+  }, 300);
   $('contactsSearch').addEventListener('input', () => {
     const q = $('contactsSearch').value.trim().toLowerCase().replace('@','');
-    renderContactsList(allUsersCache.filter(u =>
-      (u.displayName||'').toLowerCase().includes(q) || (u.username||'').toLowerCase().includes(q)
-    ));
+    runContactsSearch(q);
   });
-  $('contactsList').addEventListener('click', (e) => {
-    const row = e.target.closest('.chatRow');
-    if (!row) return;
-    if (e.target.closest('.chatRowAvatarWrap')) {
-      openUserProfile(row.dataset.uid, { displayName: row.dataset.name, avatarUrl: row.dataset.avatarUrl });
+  $('contactsList').addEventListener('click', async (e) => {
+    const actionBtn = e.target.closest('button[data-action]');
+    if (actionBtn) {
+      e.stopPropagation();
+      const uid = actionBtn.dataset.uid;
+      actionBtn.disabled = true;
+      try {
+        if (actionBtn.dataset.action === 'add') await sendContactRequest(uid, actionBtn.dataset.name, actionBtn.dataset.username, actionBtn.dataset.avatarUrl);
+        else if (actionBtn.dataset.action === 'cancel') await cancelContactRequest(uid);
+        else if (actionBtn.dataset.action === 'accept') await acceptContactRequest(uid);
+      } catch(err) { contactErrorAlert(err); }
+      actionBtn.disabled = false;
       return;
     }
-    openDirectChat(row.dataset.uid, row.dataset.name, row.dataset.avatarUrl);
+    const removeBtn = e.target.closest('[data-remove]');
+    if (removeBtn) {
+      e.stopPropagation();
+      const uid = removeBtn.dataset.remove;
+      const row = removeBtn.closest('.chatRow');
+      const name = row ? row.dataset.name : '';
+      if (confirm(`${name || 'Foydalanuvchi'}ni kontaktlardan olib tashlaymizmi?`)) {
+        try { await removeContact(uid); } catch(err) { contactErrorAlert(err); }
+      }
+      return;
+    }
+    const row = e.target.closest('.chatRow');
+    if (!row) return;
+    if (contactsSearchActive()) {
+      openUserProfile(row.dataset.uid, { displayName: row.dataset.name, avatarUrl: row.dataset.avatarUrl });
+    } else {
+      openDirectChat(row.dataset.uid, row.dataset.name, row.dataset.avatarUrl);
+    }
   });
 
   // ---------- Yangi suhbat: foydalanuvchi tanlash ----------
   let allUsersCache = [];
+  const USERS_PAGE_SIZE = 50; // butun 'users' to'plamini emas, faqat shu miqdorni yuklaymiz
 
-  async function loadAllUsers(){
+  // Boshlang'ich ro'yxat: cheklangan, tartiblangan sahifa (butun kolleksiyani o'qimaymiz)
+  async function loadAllUsers(limitCount){
     const uid = auth.currentUser.uid;
-    const snap = await db.collection('users').get();
+    const snap = await db.collection('users').orderBy('displayNameLower').limit(limitCount || USERS_PAGE_SIZE).get();
     allUsersCache = [];
     snap.forEach(doc => { if (doc.id !== uid) allUsersCache.push(Object.assign({ uid: doc.id }, doc.data())); });
+  }
+
+  // Qidiruv: butun kolleksiyani xotiraga yuklamasdan, to'g'ridan-to'g'ri Firestore'dan prefiks bo'yicha izlaymiz.
+  // displayNameLower / username har doim kichik harfda saqlanadi, shuning uchun prefiks solishtirish to'g'ri ishlaydi.
+  async function searchUsersRemote(q){
+    const uid = auth.currentUser.uid;
+    const end = q + '\uf8ff';
+    const [byName, byUsername] = await Promise.all([
+      db.collection('users').orderBy('displayNameLower').startAt(q).endAt(end).limit(USERS_PAGE_SIZE).get(),
+      db.collection('users').orderBy('username').startAt(q).endAt(end).limit(USERS_PAGE_SIZE).get()
+    ]);
+    const map = {};
+    byName.forEach(doc => { if (doc.id !== uid) map[doc.id] = Object.assign({ uid: doc.id }, doc.data()); });
+    byUsername.forEach(doc => { if (doc.id !== uid) map[doc.id] = Object.assign({ uid: doc.id }, doc.data()); });
+    return Object.values(map);
+  }
+
+  // Kichik debounce yordamchisi: har bosilgan tugma uchun emas, foydalanuvchi to'xtaganda so'rov yuboradi
+  function debounce(fn, wait){
+    let t = null;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
   }
 
   function renderPickerList(users){
@@ -1902,18 +3643,27 @@
 
   async function openNewChatPicker(){
     $('pickerOverlay').classList.remove('hidden');
+    document.body.classList.add('overlayActive');
     $('pickerSearch').value = '';
     $('pickerList').innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Yuklanmoqda...</div>';
     await loadAllUsers();
     renderPickerList(allUsersCache);
   }
   $('topbarAddBtn').addEventListener('click', openNewChatPicker);
-  $('pickerClose').addEventListener('click', () => $('pickerOverlay').classList.add('hidden'));
+  $('pickerClose').addEventListener('click', () => {
+    $('pickerOverlay').classList.add('hidden');
+    document.body.classList.remove('overlayActive');
+  });
+  const runPickerSearch = debounce(async (q) => {
+    if (!q) { renderPickerList(allUsersCache); return; }
+    try {
+      const results = await searchUsersRemote(q);
+      if ($('pickerSearch').value.trim().toLowerCase().replace('@','') === q) renderPickerList(results);
+    } catch(e) { console.error('Qidiruv xatosi:', e); }
+  }, 300);
   $('pickerSearch').addEventListener('input', () => {
     const q = $('pickerSearch').value.trim().toLowerCase().replace('@','');
-    renderPickerList(allUsersCache.filter(u =>
-      (u.displayName||'').toLowerCase().includes(q) || (u.username||'').toLowerCase().includes(q)
-    ));
+    runPickerSearch(q);
   });
   $('pickerList').addEventListener('click', (e) => {
     const row = e.target.closest('.pickerRow');
@@ -1927,6 +3677,7 @@
       showScreen('app');
       showTab('chats');
       startChatsListener();
+      startContactsRealtime();
       setupOwnPresence(user.uid);
       try {
         const snap = await db.collection('users').doc(user.uid).get();
@@ -1936,7 +3687,7 @@
           const baseName = user.displayName || (user.email ? user.email.split('@')[0] : 'foydalanuvchi');
           const username = await generateUniqueUsername(baseName);
           const fallback = {
-            displayName: baseName, username: username, bio: '',
+            displayName: baseName, displayNameLower: baseName.toLowerCase(), username: username, bio: '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
           await db.collection('users').doc(user.uid).set(fallback);
@@ -1949,11 +3700,13 @@
       if (window.__lastUid) goOffline(window.__lastUid);
       Object.values(presenceListeners).forEach(unsub => unsub());
       stopChatsListener();
+      stopContactsRealtime();
       $('chatDetail').classList.add('hidden');
       if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
       if (typingListenerRef) { typingListenerRef.off(); typingListenerRef = null; }
       currentChatId = null;
       currentChatOtherUid = null;
+      setAuthMethod('email');
       setMode(false);
       showScreen('auth');
     }
@@ -1971,6 +3724,224 @@
       });
     });
   }
+</script>
+
+<style>
+/* Telegram style focus blur when opening new chat picker */
+body.overlayActive #topbar,
+body.overlayActive .searchRow,
+body.overlayActive #appWrap,
+body.overlayActive #bottomNav {
+    filter: blur(8px);
+    opacity: 0.35;
+    pointer-events: none;
+    transition: .25s ease;
+}
+
+body.overlayActive #pickerOverlay {
+    filter: none;
+}
+
+#pickerOverlay {
+    z-index: 9999 !important;
+}
+
+#pickerSheet {
+    filter: none !important;
+    opacity: 1 !important;
+}
+</style>
+
+
+<script>
+// Davra media buttons upgrade
+(function(){
+  const voiceBtn=document.getElementById('voiceBtn');
+  const videoBtn=document.getElementById('videoBtn');
+  const cameraPreview=document.getElementById('cameraPreview');
+  let recorder=null;
+  let chunks=[];
+  let stream=null;
+  let voiceTimer=null;
+  let voiceSeconds=0;
+  let videoRecorder=null;
+  let videoChunks=[];
+
+  if(voiceBtn){
+    voiceBtn.addEventListener('click', async ()=>{
+      try{
+        if(recorder && recorder.state==='recording'){
+          recorder.stop();
+          voiceBtn.innerHTML='🎤';
+          voiceBtn.title='Ovozli xabar';
+          clearInterval(voiceTimer);
+          voiceTimer=null;
+          return;
+        }
+        stream=await navigator.mediaDevices.getUserMedia({audio:true});
+        recorder=new MediaRecorder(stream);
+        chunks=[];
+        recorder.ondataavailable=e=>chunks.push(e.data);
+        recorder.onstop=()=>{
+          const blob=new Blob(chunks,{type:'audio/webm'});
+          window.pendingMedia={blob:blob,type:'audio',duration:voiceSeconds};
+          const url=URL.createObjectURL(blob);
+          const audio=document.createElement('audio');
+          audio.controls=true;
+          audio.src=url;
+          document.getElementById('previewContent').innerHTML='🎤 Ovozli xabar tayyor ('+voiceSeconds+'s)<br>';
+          voiceSeconds=0;
+          document.getElementById('previewContent').appendChild(audio);
+          document.getElementById('mediaPreview').classList.remove('hidden');
+          stream.getTracks().forEach(t=>t.stop());
+        };
+        recorder.start();
+        voiceSeconds=0;
+        clearInterval(voiceTimer);
+        voiceTimer=setInterval(()=>{
+          voiceSeconds++;
+          voiceBtn.innerHTML='⏹️ '+voiceSeconds+'s';
+        },1000);
+        voiceBtn.innerHTML='⏹️ 0s';
+        voiceBtn.title='To‘xtatish';
+      }catch(e){alert('Mikrofon ruxsati kerak');}
+    });
+  }
+
+  if(videoBtn){
+    videoBtn.addEventListener('click', async ()=>{
+      try{
+        if(cameraPreview.classList.contains('hidden')){
+          stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+          cameraPreview.srcObject=stream;
+          cameraPreview.classList.remove('hidden');
+          videoChunks=[];
+          videoRecorder=new MediaRecorder(stream);
+          videoRecorder.ondataavailable=e=>{ if(e.data.size) videoChunks.push(e.data); };
+          videoRecorder.onstop=()=>{
+            const blob=new Blob(videoChunks,{type:'video/webm'});
+            window.pendingMedia={blob:blob,type:'video'};
+            const url=URL.createObjectURL(blob);
+            document.getElementById('previewContent').innerHTML='📹 Video xabar tayyor<br><video controls style="max-width:220px;border-radius:12px" src="'+url+'"></video>';
+            document.getElementById('mediaPreview').classList.remove('hidden');
+          };
+          videoRecorder.start();
+          videoBtn.innerHTML='⏹️';
+          videoBtn.title='Videoni to‘xtatish';
+        }else{
+          if(videoRecorder && videoRecorder.state==='recording') videoRecorder.stop();
+          cameraPreview.classList.add('hidden');
+          if(stream) stream.getTracks().forEach(t=>t.stop());
+          cameraPreview.srcObject=null;
+          videoBtn.innerHTML='📹';
+          videoBtn.title='Video xabar';
+        }
+      }catch(e){alert('Kamera ruxsati kerak');}
+    });
+  }
+})();
+
+function playVoice(btn){
+ const audio=btn.parentElement.querySelector('audio');
+ if(!audio) return;
+ if(audio.paused){audio.play();btn.innerHTML='⏸';}else{audio.pause();btn.innerHTML='▶';}
+ audio.onended=()=>btn.innerHTML='▶';
+}
+
+// Media yuborish uchun tayyorlash
+window.pendingMedia = null;
+const sendMediaBtn=document.getElementById('sendMediaBtn');
+if(sendMediaBtn){
+ sendMediaBtn.onclick = async ()=>{
+  if(!window.pendingMedia || !currentChatId || !auth.currentUser) return;
+  const u=URL.createObjectURL(window.pendingMedia.blob);
+  await db.collection('chats').doc(currentChatId).collection('messages').add({
+   senderUid: auth.currentUser.uid,
+   text:'',
+   mediaUrl:u,
+   mediaType:window.pendingMedia.type,
+   duration:window.pendingMedia.duration || 0,
+   createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('mediaPreview').classList.add('hidden');
+  document.getElementById('previewContent').innerHTML='';
+  window.pendingMedia=null;
+ };
+}
+</script>
+
+<style>
+#sendMediaBtn{display:none!important}
+#mediaPreview{max-width:340px!important}
+.voiceBubble{max-width:300px!important;overflow:hidden;display:flex;align-items:center;gap:10px;padding:10px;border-radius:18px}
+.voiceBubble audio{width:230px;max-width:100%}
+#previewContent audio,#previewContent video{max-width:300px!important;max-height:180px!important;border-radius:14px}
+#previewContent video{object-fit:cover}
+</style>
+<script>
+(function(){
+ const cancel=document.getElementById('cancelMedia');
+ if(cancel){
+  cancel.onclick=function(){
+    window.pendingMedia=null;
+    const p=document.getElementById('mediaPreview');
+    const c=document.getElementById('previewContent');
+    if(c)c.innerHTML='';
+    if(p)p.classList.add('hidden');
+    if(window.currentStream){window.currentStream.getTracks().forEach(t=>t.stop());}
+  };
+ }
+ // hide empty media messages
+ const oldRender=window.renderMessages;
+ // fix preview size and autoplay blobs
+ document.addEventListener('DOMContentLoaded',()=>{
+   const send=document.getElementById('sendMediaBtn');
+   if(send) send.style.display='none';
+ });
+})();
+</script>
+
+<style>
+/* Camera preview normal direction */
+#cameraPreview { transform: none !important; }
+
+/* Media player clicks should not open menus */
+audio, video, audio *, video * {
+    user-select:none;
+}
+
+.chatMedia {
+    max-width:320px;
+    max-height:220px;
+    border-radius:16px;
+    overflow:hidden;
+}
+</style>
+<script>
+// Prevent media players from triggering context menus
+document.addEventListener('contextmenu', e=>{
+    if(e.target.closest('audio, video')) e.preventDefault();
+});
+
+// Long press (phone) and right click (PC) for message menu
+let pressTimer;
+function enableMessageMenu(el){
+    el.addEventListener('mousedown', e=>{
+        if(e.button===2){ openMessageMenu(el); }
+    });
+    el.addEventListener('touchstart', ()=>{
+        pressTimer=setTimeout(()=>openMessageMenu(el),600);
+    });
+    el.addEventListener('touchend', ()=>clearTimeout(pressTimer));
+    el.addEventListener('touchmove', ()=>clearTimeout(pressTimer));
+}
+
+function openMessageMenu(el){
+    // uses existing menu if available
+    if(typeof showMsgMenu==='function') showMsgMenu(el);
+}
+
+document.querySelectorAll('.message,.msg,.bubble').forEach(enableMessageMenu);
 </script>
 </body>
 </html>
