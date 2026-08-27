@@ -60,88 +60,7 @@
     transition: background-color .25s ease, color .25s ease;
   }
 
-// ===== Attachment Menu =====
 
-const attachBtn = document.getElementById("attachBtn");
-const fileInput = document.getElementById("fileInput");
-const mediaPreview = document.getElementById("mediaPreview");
-const previewContent = document.getElementById("previewContent");
-const cancelMedia = document.getElementById("cancelMedia");
-
-
-attachBtn.addEventListener("click", () => {
-    fileInput.click();
-});
-
-
-fileInput.addEventListener("change", (e)=>{
-
-    const files = e.target.files;
-
-    if(!files.length) return;
-
-
-    previewContent.innerHTML = "";
-
-
-    [...files].forEach(file=>{
-
-        const url = URL.createObjectURL(file);
-
-
-        if(file.type.startsWith("image/")){
-
-            const img=document.createElement("img");
-            img.src=url;
-            previewContent.appendChild(img);
-
-        }
-
-
-        else if(file.type.startsWith("video/")){
-
-            const video=document.createElement("video");
-
-            video.src=url;
-            video.controls=true;
-
-            previewContent.appendChild(video);
-
-        }
-
-
-        else{
-
-            const div=document.createElement("div");
-
-            div.innerHTML=
-            "📄 "+file.name;
-
-            previewContent.appendChild(div);
-
-        }
-
-    });
-
-
-    mediaPreview.classList.remove("hidden");
-
-});
-
-
-
-cancelMedia.addEventListener("click",()=>{
-    window.pendingMedia=null;
-    if(window.stream){ window.stream.getTracks().forEach(t=>t.stop()); }
-
-    mediaPreview.classList.add("hidden");
-
-    previewContent.innerHTML="";
-
-    fileInput.value="";
-
-});
-  html[data-theme="light"]{
     --glass-surface: rgba(255,255,255,0.62);
     --glass-border: rgba(23,24,28,0.08);
     --glow-a: rgba(99,91,255,0.14);
@@ -167,246 +86,90 @@ cancelMedia.addEventListener("click",()=>{
   }
 
 
-/* Professional composer buttons */
-
+/* Kompozitor (xabar yozish qatori) tugmalari — ixcham, ekranga sig'adigan */
 .composerBtn {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    flex-shrink: 0;
     border-radius: 50%;
-
-    border: 1px solid rgba(255,255,255,0.15);
-
-    background: linear-gradient(
-        135deg,
-        #2196ff,
-        #0066ff
-    );
-
-    color: white;
-
-    font-size: 22px;
-
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    color: var(--text-dim);
+    font-size: 16px;
     display:flex;
     align-items:center;
     justify-content:center;
-
     cursor:pointer;
-
-    box-shadow:
-        0 6px 20px rgba(0,120,255,0.35);
-
-    transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        opacity .2s ease;
+    padding: 0;
+    transition: transform .15s ease, background .15s ease, color .15s ease;
 }
-
-
-.composerBtn:hover {
-
-    transform: translateY(-3px) scale(1.05);
-
-    box-shadow:
-        0 10px 30px rgba(0,140,255,0.55);
-
+.composerBtn:hover { background: var(--surface-2); color: var(--text); }
+.composerBtn:active { transform: scale(.92); }
+.composerBtn.recording {
+    background: linear-gradient(135deg, var(--coral), #ff4757);
+    color: #fff; border-color: transparent; font-size: 12px; font-weight:700;
+    width:auto; padding: 0 10px; border-radius: 19px;
+    animation: composerRecPulse 1.1s ease-in-out infinite;
 }
+@keyframes composerRecPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,107,107,0.45); } 50%{ box-shadow:0 0 0 6px rgba(255,107,107,0); } }
 
-
-.composerBtn:active {
-
-    transform:scale(.92);
-
+#messageInputBar{
+  display:flex; flex-wrap:nowrap; gap:6px; padding: 10px 12px; border-top:1px solid var(--border);
+  background: var(--bg-blur); backdrop-filter: blur(10px); align-items:center;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
 }
-
-
-/* Send button ham bir xil premium */
-
-#sendMsgBtn {
-
-    width:50px;
-    height:50px;
-
-    border-radius:50%;
-
-    border:none;
-
-    background:
-    linear-gradient(
-        135deg,
-        #00c6ff,
-        #0072ff
-    );
-
-    color:white;
-
-    font-size:22px;
-
-    cursor:pointer;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    box-shadow:
-    0 8px 25px rgba(0,120,255,.5);
-
-    transition:.2s;
+#messageInput{
+  flex:1 1 auto; min-width:0; background: var(--bg-2); border:1px solid var(--border); color:var(--text);
+  border-radius: 999px; padding: 10px 15px; font-family:inherit; font-size:14.5px; outline:none;
 }
-
-
-#sendMsgBtn:hover {
-
-    transform:scale(1.08);
-
+#messageInput:focus{ border-color: var(--accent); }
+#sendMsgBtn{
+  width:38px; height:38px; min-width:38px; border-radius:50%; border:none; flex-shrink:0; cursor:pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#FFFFFF; font-size:16px;
+  display:flex; align-items:center; justify-content:center; padding:0;
 }
+#sendMsgBtn:disabled{ opacity:0.4; cursor:default; }
 
-
-#messageInputBar {
-
-    gap:12px;
-
-    align-items:center;
-
-    padding:14px;
-
-}
-
-
-/* ===== Media Preview ===== */
-
+/* ---------- Media biriktirish oldindan ko'rish paneli ---------- */
 #mediaPreview {
     position: absolute;
-    bottom: 75px;
-    left: 15px;
-    right: 15px;
-
-    background:
-    rgba(25,30,45,0.85);
-
+    bottom: 68px;
+    left: 12px;
+    right: 12px;
+    background: var(--glass-surface);
     backdrop-filter: blur(20px);
-
-    border-radius:20px;
-
-    padding:15px;
-
-    border:1px solid rgba(255,255,255,.12);
-
-    box-shadow:
-    0 10px 40px rgba(0,0,0,.4);
-
+    border-radius: 18px;
+    padding: 12px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-lift);
     animation: slideUp .25s ease;
-
-    z-index:100;
+    z-index: 100;
 }
-
-
-#mediaPreview.hidden {
-    display:none;
-}
-
-
-@keyframes slideUp {
-
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-
-}
-
-
-/* Preview ichidagi media */
-
-#previewContent img {
-
-    max-width:200px;
-    max-height:150px;
-
-    border-radius:15px;
-
-    object-fit:cover;
-
-}
-
-
-#previewContent video {
-
-    max-width:240px;
-
-    border-radius:15px;
-
-}
-
-
-/* Cancel button */
-
+#mediaPreview.hidden { display:none; }
+@keyframes slideUp { from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:translateY(0); } }
+#previewContent img,
+#previewContent video { max-width: 220px; max-height: 220px; border-radius: 14px; object-fit: cover; display:block; }
+#previewContent audio { width: 240px; max-width: 100%; }
+.filePreviewRow{ font-size:13.5px; padding:4px 2px; word-break:break-all; }
 #cancelMedia {
-
-    position:absolute;
-
-    top:8px;
-    right:8px;
-
-    width:32px;
-    height:32px;
-
-    border-radius:50%;
-
-    border:none;
-
-    background:#ff4757;
-
-    color:white;
-
-    cursor:pointer;
-
-    font-size:16px;
-
+    position:absolute; top:8px; right:8px; width:28px; height:28px; border-radius:50%;
+    border:none; background: var(--coral); color:white; cursor:pointer; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
 }
+#sendMediaBtn{ display:none; } /* asosiy ➤ tugmasi orqali yuboriladi, alohida tugma shart emas */
 
-
-/* Upload progress */
-
-#uploadProgress {
-
-    height:6px;
-
-    background:
-    rgba(255,255,255,.15);
-
-    border-radius:10px;
-
-    overflow:hidden;
-
-    margin-top:12px;
-
+/* ---------- Chatdagi media xabarlar ---------- */
+.chatMediaImg{ max-width:220px; max-height:280px; border-radius:14px; object-fit:cover; display:block; cursor:pointer; }
+.chatMediaVideo{ max-width:220px; border-radius:14px; display:block; }
+.fileAttachment{
+  display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px;
+  background: rgba(255,255,255,0.06); color:inherit; text-decoration:none; font-size:13.5px;
+  word-break:break-all;
 }
+#cameraPreview{ transform:none!important; }
+audio, video, audio *, video * { user-select:none; }
 
-
-#uploadBar {
-
-    height:100%;
-
-    width:0%;
-
-    background:
-    linear-gradient(
-        90deg,
-        #00c6ff,
-        #0072ff
-    );
-
-    transition:.3s;
-
-}
-  html[data-theme="light"] body{ background: var(--bg); }
   html[data-theme="light"] #authCard::before{ opacity:0.5; }
   * { box-sizing: border-box; margin:0; padding:0; }
   html,body{ height:100%; }
@@ -421,6 +184,11 @@ cancelMedia.addEventListener("click",()=>{
     overflow-x: hidden;
   }
   h1,h2,h3, .display { font-family: 'Inter', -apple-system, sans-serif; font-weight:800; letter-spacing:-0.02em; }
+
+  /* Faqat kompyuter dizayni (min-width:900px media query) uchun mo'ljallangan element.
+     Standart holatda (mobil/tor ekran) butunlay yashirin bo'lishi kerak,
+     aks holda sahifa pastida ortiqcha matn bo'lib chiqib qoladi. */
+  #chatDetailPlaceholder{ display:none; }
 
   /* ---------- Top bar ---------- */
   #topbar{
@@ -705,24 +473,6 @@ opacity:1;
   .msgCheck.read{ color:#7CD3FF; opacity:1; font-weight:700; }
 
   #chatEmptyState{ text-align:center; color: var(--text-dim); font-size:13px; margin:auto; padding: 20px; line-height:1.6; }
-
-  #messageInputBar{
-    display:flex; gap:10px; padding: 12px 14px; border-top:1px solid var(--border);
-    background: var(--bg-blur); backdrop-filter: blur(10px);
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-  }
-  #messageInput{
-    flex:1; background: var(--bg-2); border:1px solid var(--border); color:var(--text);
-    border-radius: 999px; padding: 11px 16px; font-family:inherit; font-size:14.5px; outline:none;
-  }
-  #messageInput:focus{ border-color: var(--accent); }
-  #sendMsgBtn{
-    width:42px; height:42px; border-radius:50%; border:none; flex-shrink:0; cursor:pointer;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#FFFFFF; font-size:17px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  #sendMsgBtn:disabled{ opacity:0.4; cursor:default; }
-
 
   #appWrap{ flex:1; display:flex; flex-direction:column; align-items:center; padding: 12px 18px calc(84px + env(safe-area-inset-bottom)); }
   #profileCard{
@@ -1755,7 +1505,7 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
   </div>
   <div id="messageInputBar">
 
-    <input type="file" id="fileInput" hidden multiple accept="image/*,video/*,.pdf,.doc,.docx,.zip">
+    <input type="file" id="fileInput" hidden accept="image/*,video/*,.pdf,.doc,.docx,.zip">
 
     <button id="attachBtn" class="composerBtn">
         📎
@@ -3192,9 +2942,10 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
       }
       return `<div class="msgRow ${mine ? 'me' : ''}">
         <div class="msgBubble" data-id="${m.id}" data-mine="${mine ? '1':'0'}">
-          ${replyHtml}${m.mediaUrl && m.mediaType==='audio' ? `<div class="voiceBubble"><button class="voicePlay" onclick="playVoice(this)">▶</button><div class="voiceWave">${'<span></span>'.repeat(18)}</div><span class="voiceTime">${m.duration||0}s</span><audio src="${m.mediaUrl}"></audio></div>` : ''}
-          ${m.mediaUrl && m.mediaType==='video' ? `<video controls style="max-width:220px;border-radius:12px" src="${m.mediaUrl}"></video>` : ''}
-          ${m.fileName ? `<div>📎 ${escapeHtml(m.fileName)}</div>` : ''}
+          ${replyHtml}${m.mediaUrl && m.mediaType==='audio' ? `<div class="voiceBubble"><button class="voicePlay">▶</button><div class="voiceWave">${'<span></span>'.repeat(18)}</div><span class="voiceTime">${m.duration||0}s</span><audio src="${m.mediaUrl}"></audio></div>` : ''}
+          ${m.mediaUrl && m.mediaType==='video' ? `<video controls class="chatMediaVideo" src="${m.mediaUrl}"></video>` : ''}
+          ${m.mediaUrl && m.mediaType==='image' ? `<img src="${m.mediaUrl}" class="chatMediaImg" alt="">` : ''}
+          ${m.mediaUrl && m.mediaType==='file' ? `<a href="${m.mediaUrl}" download="${escapeHtml(m.fileName||'fayl')}" class="fileAttachment">📎 ${escapeHtml(m.fileName||'Fayl')}</a>` : ''}
           ${m.text ? `<span class="msgText">${escapeHtml(m.text)}${m.edited ? '<span class="editedTag">tahrirlangan</span>' : ''}</span>` : ''}
           <span class="msgTime">${fmtTime(m.createdAt)}${checkHtml}</span>
           ${reactionsHtml ? `<div class="reactionsRow">${reactionsHtml}</div>` : ''}
@@ -3232,7 +2983,9 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
   async function sendCurrentMessage(){
     const text = $('messageInput').value.trim();
     const user = auth.currentUser;
-    if ((!text && !window.pendingMedia) || !currentChatId || !user) return;
+    const media = window.pendingMedia;
+    if ((!text && !media) || !currentChatId || !user) return;
+    if ($('blockedBanner').classList.contains('show')) return;
     $('sendMsgBtn').disabled = true;
     clearTimeout(typingTimeout);
     if (isTypingNow) { isTypingNow = false; setMyTyping(currentChatId, user.uid, false); }
@@ -3243,11 +2996,18 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
         });
       } else {
         const payload = { senderUid: user.uid, text: text, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-        if (window.pendingMedia) {
-          payload.mediaType = window.pendingMedia.type;
-          payload.mediaUrl = URL.createObjectURL(window.pendingMedia.blob);
-          if (window.pendingMedia.duration) payload.duration = window.pendingMedia.duration;
-          window.pendingMedia = null;
+        let previewText = text;
+        if (media) {
+          payload.mediaType = media.type;
+          payload.mediaUrl = media.dataUrl;
+          if (media.duration) payload.duration = media.duration;
+          if (media.fileName) payload.fileName = media.fileName;
+          if (!previewText) {
+            previewText = media.type === 'audio' ? '🎤 Ovozli xabar'
+              : media.type === 'video' ? '📹 Video xabar'
+              : media.type === 'image' ? '🖼️ Rasm'
+              : '📎 ' + (media.fileName || 'Fayl');
+          }
         }
         if (composerMode && composerMode.type === 'reply') {
           payload.replyToText = composerMode.text;
@@ -3255,8 +3015,9 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
         }
         await db.collection('chats').doc(currentChatId).collection('messages').add(payload);
         await db.collection('chats').doc(currentChatId).update({
-          lastMessage: text, lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+          lastMessage: previewText, lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        clearMediaPreview();
       }
       clearComposerMode();
     } catch(e) {
@@ -3267,6 +3028,191 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
   }
   $('sendMsgBtn').addEventListener('click', sendCurrentMessage);
   $('messageInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendCurrentMessage(); });
+
+  // ---------- Media biriktirish: fayl/rasm, ovozli va video xabar ----------
+  // Eslatma: Firebase Storage yo'q (Blaze talab qilinadi), shu sabab media base64 sifatida
+  // to'g'ridan-to'g'ri Firestore hujjatiga saqlanadi. Hujjat hajmi cheklovi (~1MB) tufayli
+  // hajm nazorati va davomiylik chegaralari qo'yilgan.
+  const MAX_MEDIA_BYTES = 700 * 1024;
+  const MAX_VOICE_SECONDS = 120;
+  const MAX_VIDEO_SECONDS = 15;
+
+  window.pendingMedia = null; // {dataUrl, type:'image'|'video'|'audio'|'file', duration, fileName}
+
+  function blobToBase64(blob){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Fayl o'qilmadi"));
+      reader.readAsDataURL(blob);
+    });
+  }
+  function estimateBase64Bytes(blob){ return Math.ceil(blob.size * 4 / 3); }
+  // Rasmni (kvadratga qirqmasdan) uzun tomoni maxSize dan oshmaydigan qilib siqadi
+  function resizePhotoToDataUrl(file, maxSize, quality){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Fayl o'qilmadi"));
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Rasm ochilmadi"));
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w >= h) { h = Math.round(h * maxSize / w); w = maxSize; }
+            else { w = Math.round(w * maxSize / h); h = maxSize; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const targetBytes = MAX_MEDIA_BYTES;
+          let q = quality, dataUrl = canvas.toDataURL('image/jpeg', q), tries = 0;
+          while ((dataUrl.length * 0.75) > targetBytes && q > 0.3 && tries < 8) {
+            q -= 0.1; dataUrl = canvas.toDataURL('image/jpeg', q); tries++;
+          }
+          resolve(dataUrl);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function showMediaPreview(html){
+    $('previewContent').innerHTML = html;
+    $('mediaPreview').classList.remove('hidden');
+  }
+  function clearMediaPreview(){
+    window.pendingMedia = null;
+    $('previewContent').innerHTML = '';
+    $('mediaPreview').classList.add('hidden');
+    $('fileInput').value = '';
+  }
+  $('cancelMedia').addEventListener('click', () => {
+    if (voiceStream) { voiceStream.getTracks().forEach(t => t.stop()); }
+    if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); }
+    clearMediaPreview();
+  });
+
+  // --- Fayl biriktirish (📎) ---
+  $('attachBtn').addEventListener('click', () => $('fileInput').click());
+  $('fileInput').addEventListener('change', async () => {
+    const file = $('fileInput').files && $('fileInput').files[0];
+    $('fileInput').value = '';
+    if (!file) return;
+    try {
+      if (file.type.startsWith('image/')) {
+        const dataUrl = await resizePhotoToDataUrl(file, 1280, 0.78);
+        if ((dataUrl.length * 0.75) > MAX_MEDIA_BYTES) { alert("Rasm hali ham juda katta chiqdi. Boshqa rasm tanlang."); return; }
+        window.pendingMedia = { dataUrl, type: 'image' };
+        showMediaPreview(`<img src="${dataUrl}" alt="">`);
+      } else {
+        if (estimateBase64Bytes(file) > MAX_MEDIA_BYTES) {
+          alert("Fayl juda katta (taxminan " + Math.round(MAX_MEDIA_BYTES/1024) + " KB gacha bo'lgan fayllar qo'llab-quvvatlanadi).");
+          return;
+        }
+        const dataUrl = await blobToBase64(file);
+        const isVideo = file.type.startsWith('video/');
+        window.pendingMedia = { dataUrl, type: isVideo ? 'video' : 'file', fileName: file.name };
+        showMediaPreview(isVideo
+          ? `<video controls src="${dataUrl}"></video>`
+          : `<div class="filePreviewRow">📄 ${escapeHtml(file.name)}</div>`);
+      }
+    } catch(e) {
+      console.error(e);
+      alert('Faylni ochishda xatolik yuz berdi.');
+    }
+  });
+
+  // --- Ovozli xabar (🎤) ---
+  let voiceRecorder = null, voiceChunks = [], voiceStream = null, voiceTimer = null, voiceSeconds = 0;
+  $('voiceBtn').addEventListener('click', async () => {
+    try {
+      if (voiceRecorder && voiceRecorder.state === 'recording') { voiceRecorder.stop(); return; }
+      voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      voiceRecorder = new MediaRecorder(voiceStream);
+      voiceChunks = [];
+      voiceRecorder.ondataavailable = (e) => { if (e.data.size) voiceChunks.push(e.data); };
+      voiceRecorder.onstop = async () => {
+        clearInterval(voiceTimer); voiceTimer = null;
+        voiceStream.getTracks().forEach(t => t.stop());
+        $('voiceBtn').textContent = '🎤';
+        $('voiceBtn').classList.remove('recording');
+        const dur = voiceSeconds; voiceSeconds = 0;
+        const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+        if (dur < 1) return; // tasodifiy bosilgan (juda qisqa) yozuvni tashlab yuboramiz
+        if (estimateBase64Bytes(blob) > MAX_MEDIA_BYTES) {
+          alert("Ovozli xabar juda uzun chiqdi. Qisqaroq yozib ko'ring (taxminan " + MAX_VOICE_SECONDS + " soniyagacha).");
+          return;
+        }
+        const dataUrl = await blobToBase64(blob);
+        window.pendingMedia = { dataUrl, type: 'audio', duration: dur };
+        showMediaPreview(`🎤 Ovozli xabar (${dur}s)<br><audio controls src="${dataUrl}"></audio>`);
+      };
+      voiceRecorder.start();
+      voiceSeconds = 0;
+      $('voiceBtn').classList.add('recording');
+      $('voiceBtn').textContent = '⏹ 0s';
+      voiceTimer = setInterval(() => {
+        voiceSeconds++;
+        $('voiceBtn').textContent = '⏹ ' + voiceSeconds + 's';
+        if (voiceSeconds >= MAX_VOICE_SECONDS) voiceRecorder.stop();
+      }, 1000);
+    } catch(e) {
+      alert('Mikrofonga ruxsat kerak.');
+    }
+  });
+
+  // --- Video xabar (📹) ---
+  let videoRecorder = null, videoChunks = [], videoStream = null, videoSeconds = 0, videoTimer = null;
+  $('videoBtn').addEventListener('click', async () => {
+    try {
+      if (videoRecorder && videoRecorder.state === 'recording') { videoRecorder.stop(); return; }
+      videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 320 }, height: { ideal: 240 } }, audio: true
+      });
+      $('cameraPreview').srcObject = videoStream;
+      $('cameraPreview').classList.remove('hidden');
+      videoChunks = [];
+      const opts = (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('video/webm;codecs=vp8'))
+        ? { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 250000 }
+        : {};
+      videoRecorder = new MediaRecorder(videoStream, opts);
+      videoRecorder.ondataavailable = (e) => { if (e.data.size) videoChunks.push(e.data); };
+      videoRecorder.onstop = async () => {
+        clearInterval(videoTimer); videoTimer = null;
+        videoStream.getTracks().forEach(t => t.stop());
+        $('cameraPreview').classList.add('hidden');
+        $('cameraPreview').srcObject = null;
+        $('videoBtn').textContent = '📹';
+        $('videoBtn').classList.remove('recording');
+        const dur = videoSeconds; videoSeconds = 0;
+        const blob = new Blob(videoChunks, { type: 'video/webm' });
+        if (dur < 1) return;
+        if (estimateBase64Bytes(blob) > MAX_MEDIA_BYTES) {
+          alert("Video xabar juda katta chiqdi. Qisqaroq yozib ko'ring (taxminan " + MAX_VIDEO_SECONDS + " soniyagacha).");
+          return;
+        }
+        const dataUrl = await blobToBase64(blob);
+        window.pendingMedia = { dataUrl, type: 'video' };
+        showMediaPreview(`📹 Video xabar tayyor<br><video controls src="${dataUrl}"></video>`);
+      };
+      videoRecorder.start();
+      videoSeconds = 0;
+      $('videoBtn').classList.add('recording');
+      $('videoBtn').textContent = '⏹';
+      videoTimer = setInterval(() => {
+        videoSeconds++;
+        if (videoSeconds >= MAX_VIDEO_SECONDS) videoRecorder.stop();
+      }, 1000);
+    } catch(e) {
+      alert('Kameraga ruxsat kerak.');
+    }
+  });
+
+  // Audio/video pleyerlarda o'ng klik menyusi chiqmasin
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('audio, video')) e.preventDefault();
+  });
 
   // ---------- Xabar amallari: reaksiya / javob / tahrirlash / o'chirish ----------
   const REACTION_EMOJIS = ['👍','❤️','😂','😮','😢','🙏'];
@@ -3282,6 +3228,22 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
   $('msgActionOverlay').addEventListener('click', (e) => { if (e.target.id === 'msgActionOverlay') $('msgActionOverlay').classList.add('hidden'); });
 
   $('messagesArea').addEventListener('click', (e) => {
+    const img = e.target.closest('.chatMediaImg');
+    if (img) {
+      $('avatarLightboxImg').src = img.src;
+      $('avatarLightbox').classList.remove('hidden');
+      return;
+    }
+    const playBtn = e.target.closest('.voicePlay');
+    if (playBtn) {
+      const audio = playBtn.parentElement.querySelector('audio');
+      if (audio) {
+        if (audio.paused) { audio.play(); playBtn.textContent = '⏸'; }
+        else { audio.pause(); playBtn.textContent = '▶'; }
+        audio.onended = () => { playBtn.textContent = '▶'; };
+      }
+      return;
+    }
     const bubble = e.target.closest('.msgBubble');
     if (!bubble) return;
     const id = bubble.dataset.id;
@@ -3752,196 +3714,5 @@ body.overlayActive #pickerOverlay {
 }
 </style>
 
-
-<script>
-// Davra media buttons upgrade
-(function(){
-  const voiceBtn=document.getElementById('voiceBtn');
-  const videoBtn=document.getElementById('videoBtn');
-  const cameraPreview=document.getElementById('cameraPreview');
-  let recorder=null;
-  let chunks=[];
-  let stream=null;
-  let voiceTimer=null;
-  let voiceSeconds=0;
-  let videoRecorder=null;
-  let videoChunks=[];
-
-  if(voiceBtn){
-    voiceBtn.addEventListener('click', async ()=>{
-      try{
-        if(recorder && recorder.state==='recording'){
-          recorder.stop();
-          voiceBtn.innerHTML='🎤';
-          voiceBtn.title='Ovozli xabar';
-          clearInterval(voiceTimer);
-          voiceTimer=null;
-          return;
-        }
-        stream=await navigator.mediaDevices.getUserMedia({audio:true});
-        recorder=new MediaRecorder(stream);
-        chunks=[];
-        recorder.ondataavailable=e=>chunks.push(e.data);
-        recorder.onstop=()=>{
-          const blob=new Blob(chunks,{type:'audio/webm'});
-          window.pendingMedia={blob:blob,type:'audio',duration:voiceSeconds};
-          const url=URL.createObjectURL(blob);
-          const audio=document.createElement('audio');
-          audio.controls=true;
-          audio.src=url;
-          document.getElementById('previewContent').innerHTML='🎤 Ovozli xabar tayyor ('+voiceSeconds+'s)<br>';
-          voiceSeconds=0;
-          document.getElementById('previewContent').appendChild(audio);
-          document.getElementById('mediaPreview').classList.remove('hidden');
-          stream.getTracks().forEach(t=>t.stop());
-        };
-        recorder.start();
-        voiceSeconds=0;
-        clearInterval(voiceTimer);
-        voiceTimer=setInterval(()=>{
-          voiceSeconds++;
-          voiceBtn.innerHTML='⏹️ '+voiceSeconds+'s';
-        },1000);
-        voiceBtn.innerHTML='⏹️ 0s';
-        voiceBtn.title='To‘xtatish';
-      }catch(e){alert('Mikrofon ruxsati kerak');}
-    });
-  }
-
-  if(videoBtn){
-    videoBtn.addEventListener('click', async ()=>{
-      try{
-        if(cameraPreview.classList.contains('hidden')){
-          stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-          cameraPreview.srcObject=stream;
-          cameraPreview.classList.remove('hidden');
-          videoChunks=[];
-          videoRecorder=new MediaRecorder(stream);
-          videoRecorder.ondataavailable=e=>{ if(e.data.size) videoChunks.push(e.data); };
-          videoRecorder.onstop=()=>{
-            const blob=new Blob(videoChunks,{type:'video/webm'});
-            window.pendingMedia={blob:blob,type:'video'};
-            const url=URL.createObjectURL(blob);
-            document.getElementById('previewContent').innerHTML='📹 Video xabar tayyor<br><video controls style="max-width:220px;border-radius:12px" src="'+url+'"></video>';
-            document.getElementById('mediaPreview').classList.remove('hidden');
-          };
-          videoRecorder.start();
-          videoBtn.innerHTML='⏹️';
-          videoBtn.title='Videoni to‘xtatish';
-        }else{
-          if(videoRecorder && videoRecorder.state==='recording') videoRecorder.stop();
-          cameraPreview.classList.add('hidden');
-          if(stream) stream.getTracks().forEach(t=>t.stop());
-          cameraPreview.srcObject=null;
-          videoBtn.innerHTML='📹';
-          videoBtn.title='Video xabar';
-        }
-      }catch(e){alert('Kamera ruxsati kerak');}
-    });
-  }
-})();
-
-function playVoice(btn){
- const audio=btn.parentElement.querySelector('audio');
- if(!audio) return;
- if(audio.paused){audio.play();btn.innerHTML='⏸';}else{audio.pause();btn.innerHTML='▶';}
- audio.onended=()=>btn.innerHTML='▶';
-}
-
-// Media yuborish uchun tayyorlash
-window.pendingMedia = null;
-const sendMediaBtn=document.getElementById('sendMediaBtn');
-if(sendMediaBtn){
- sendMediaBtn.onclick = async ()=>{
-  if(!window.pendingMedia || !currentChatId || !auth.currentUser) return;
-  const u=URL.createObjectURL(window.pendingMedia.blob);
-  await db.collection('chats').doc(currentChatId).collection('messages').add({
-   senderUid: auth.currentUser.uid,
-   text:'',
-   mediaUrl:u,
-   mediaType:window.pendingMedia.type,
-   duration:window.pendingMedia.duration || 0,
-   createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  document.getElementById('mediaPreview').classList.add('hidden');
-  document.getElementById('previewContent').innerHTML='';
-  window.pendingMedia=null;
- };
-}
-</script>
-
-<style>
-#sendMediaBtn{display:none!important}
-#mediaPreview{max-width:340px!important}
-.voiceBubble{max-width:300px!important;overflow:hidden;display:flex;align-items:center;gap:10px;padding:10px;border-radius:18px}
-.voiceBubble audio{width:230px;max-width:100%}
-#previewContent audio,#previewContent video{max-width:300px!important;max-height:180px!important;border-radius:14px}
-#previewContent video{object-fit:cover}
-</style>
-<script>
-(function(){
- const cancel=document.getElementById('cancelMedia');
- if(cancel){
-  cancel.onclick=function(){
-    window.pendingMedia=null;
-    const p=document.getElementById('mediaPreview');
-    const c=document.getElementById('previewContent');
-    if(c)c.innerHTML='';
-    if(p)p.classList.add('hidden');
-    if(window.currentStream){window.currentStream.getTracks().forEach(t=>t.stop());}
-  };
- }
- // hide empty media messages
- const oldRender=window.renderMessages;
- // fix preview size and autoplay blobs
- document.addEventListener('DOMContentLoaded',()=>{
-   const send=document.getElementById('sendMediaBtn');
-   if(send) send.style.display='none';
- });
-})();
-</script>
-
-<style>
-/* Camera preview normal direction */
-#cameraPreview { transform: none !important; }
-
-/* Media player clicks should not open menus */
-audio, video, audio *, video * {
-    user-select:none;
-}
-
-.chatMedia {
-    max-width:320px;
-    max-height:220px;
-    border-radius:16px;
-    overflow:hidden;
-}
-</style>
-<script>
-// Prevent media players from triggering context menus
-document.addEventListener('contextmenu', e=>{
-    if(e.target.closest('audio, video')) e.preventDefault();
-});
-
-// Long press (phone) and right click (PC) for message menu
-let pressTimer;
-function enableMessageMenu(el){
-    el.addEventListener('mousedown', e=>{
-        if(e.button===2){ openMessageMenu(el); }
-    });
-    el.addEventListener('touchstart', ()=>{
-        pressTimer=setTimeout(()=>openMessageMenu(el),600);
-    });
-    el.addEventListener('touchend', ()=>clearTimeout(pressTimer));
-    el.addEventListener('touchmove', ()=>clearTimeout(pressTimer));
-}
-
-function openMessageMenu(el){
-    // uses existing menu if available
-    if(typeof showMsgMenu==='function') showMsgMenu(el);
-}
-
-document.querySelectorAll('.message,.msg,.bubble').forEach(enableMessageMenu);
-</script>
 </body>
 </html>
