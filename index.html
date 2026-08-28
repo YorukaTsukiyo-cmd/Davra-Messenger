@@ -228,7 +228,7 @@ audio, video, audio *, video * { user-select:none; }
   .hidden{ display:none !important; }
 
   /* ---------- Search row + filter chips ---------- */
-  .searchRow{ padding: 8px 20px 10px; position: sticky; top: 61px; z-index: 18; background: var(--bg); }
+  .searchRow{ padding: 8px 20px 10px; position: sticky; top: var(--topbar-h, 61px); z-index: 18; background: var(--bg); }
   .searchRow{ position:relative; display:flex; align-items:center; }
   .searchRowIcon{
     position:absolute; left:34px; top:50%; width:15px; height:15px; transform: translateY(-50%);
@@ -242,7 +242,7 @@ audio, video, audio *, video * { user-select:none; }
   }
   .searchRow input::placeholder{ color: var(--text-dim); }
   .searchRow input:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
-  .chipsRow{ display:flex; gap:8px; padding: 0 20px 12px; overflow-x:auto; scrollbar-width:none; }
+  .chipsRow{ display:flex; gap:8px; padding: 0 20px 12px; overflow-x:auto; scrollbar-width:none; background: var(--bg); }
   .chipsRow::-webkit-scrollbar{ display:none; }
   .chip{
     flex-shrink:0; background: var(--surface-2); border:1px solid var(--border); color: var(--text-dim);
@@ -2623,6 +2623,18 @@ body{
     const wait = Math.max(0, SPLASH_MIN_MS - (Date.now() - splashShownAt));
     setTimeout(() => $('loadingScreen').classList.add('fadeOut'), wait);
   }
+  // Header (topbar) haqiqiy balandligini o'lchab, .searchRow uchun to'g'ri joyni ta'minlaydi.
+  // Qattiq kod bilan yozilgan piksel (top:61px) turli qurilma/brauzerlarda header balandligi
+  // farq qilishi sababli qidiruv qatorini header ustiga tushirib qo'yayotgan edi.
+  function syncTopbarHeightVar(){
+    const tb = $('topbar');
+    if (!tb || tb.classList.contains('hidden')) return;
+    const h = tb.getBoundingClientRect().height;
+    if (h > 0) document.documentElement.style.setProperty('--topbar-h', h + 'px');
+  }
+  window.addEventListener('resize', syncTopbarHeightVar);
+  window.addEventListener('orientationchange', () => setTimeout(syncTopbarHeightVar, 200));
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(syncTopbarHeightVar).catch(()=>{}); }
   function showScreen(name){
     hideSplash();
     $('topbar').classList.toggle('hidden', name==='auth');
@@ -2630,6 +2642,7 @@ body{
     $('authWrap').classList.toggle('hidden', name!=='auth');
     $('appWrap').classList.toggle('hidden', name!=='app');
     if (name === 'auth') { $('profileView').classList.add('hidden'); }
+    if (name !== 'auth') requestAnimationFrame(() => requestAnimationFrame(syncTopbarHeightVar));
   }
 
   // ---------- Nav tab almashtirish (Chatlar / Kontaktlar / Profil / Sozlamalar) ----------
@@ -2662,6 +2675,7 @@ body{
 
     if (tab === 'contacts') { openContactsTab(); }
     if (tab === 'circles') { renderCirclesHome(); }
+    requestAnimationFrame(() => requestAnimationFrame(syncTopbarHeightVar));
   }
   $('tabChatsBtn').addEventListener('click', () => showTab('chats'));
   $('tabCirclesBtn').addEventListener('click', () => showTab('circles'));
