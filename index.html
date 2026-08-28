@@ -229,7 +229,7 @@ audio, video, audio *, video * { user-select:none; }
 
   /* ---------- Search row + filter chips ---------- */
   .searchRow{ padding: 8px 20px 10px; position: sticky; top: var(--topbar-h, 61px); z-index: 18; background: var(--bg); }
-  .searchRow{ position:relative; display:flex; align-items:center; }
+  .searchRow{ display:flex; align-items:center; }
   .searchRowIcon{
     position:absolute; left:34px; top:50%; width:15px; height:15px; transform: translateY(-50%);
     pointer-events:none; color: var(--text-dim); opacity:0.7; z-index:1;
@@ -1025,7 +1025,7 @@ body::before,body::after{
 body::before{ width:280px;height:280px; background:var(--glow-a); top:-6%;left:-6%; }
 body::after{ width:240px;height:240px; background:var(--glow-b); bottom:-8%;right:-6%; animation-delay:-6s; }
 #loadingScreen{ background:var(--bg); }
-#topbar,#bottomNav,#authWrap,#appWrap{ position:relative; z-index:1; }
+#authWrap,#appWrap{ position:relative; z-index:1; }
 #chatDetail,#pickerOverlay,#msgActionOverlay,#avatarLightbox{ z-index:9999; }
 
 #authWrap{ overflow:hidden; }
