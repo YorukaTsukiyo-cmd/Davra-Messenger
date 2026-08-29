@@ -7,6 +7,15 @@
       var t = localStorage.getItem('davra_theme');
       if (t === 'light') document.documentElement.setAttribute('data-theme','light');
     }catch(e){}
+    // PC (sichqoncha) va telefon/planshet (teginish) qurilmalarni ajratish uchun belgi.
+    // CSS'da .is-touch / .is-desktop klasslari orqali foydalanish mumkin.
+    try{
+      var isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches
+        || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+      document.documentElement.classList.add(isTouch ? 'is-touch' : 'is-desktop');
+    }catch(e){
+      document.documentElement.classList.add('is-desktop');
+    }
   })();
 </script>
 <meta charset="UTF-8">
@@ -228,8 +237,8 @@ audio, video, audio *, video * { user-select:none; }
   .hidden{ display:none !important; }
 
   /* ---------- Search row + filter chips ---------- */
-  .searchRow{ padding: 8px 20px 10px; position: sticky; top: var(--topbar-h, 61px); z-index: 18; background: var(--bg); }
-  .searchRow{ display:flex; align-items:center; }
+  .searchRow{ padding: 8px 20px 10px; position: sticky; top: 61px; z-index: 18; background: var(--bg); }
+  .searchRow{ position:relative; display:flex; align-items:center; }
   .searchRowIcon{
     position:absolute; left:34px; top:50%; width:15px; height:15px; transform: translateY(-50%);
     pointer-events:none; color: var(--text-dim); opacity:0.7; z-index:1;
@@ -242,7 +251,7 @@ audio, video, audio *, video * { user-select:none; }
   }
   .searchRow input::placeholder{ color: var(--text-dim); }
   .searchRow input:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
-  .chipsRow{ display:flex; gap:8px; padding: 0 20px 12px; overflow-x:auto; scrollbar-width:none; background: var(--bg); }
+  .chipsRow{ display:flex; gap:8px; padding: 0 20px 12px; overflow-x:auto; scrollbar-width:none; }
   .chipsRow::-webkit-scrollbar{ display:none; }
   .chip{
     flex-shrink:0; background: var(--surface-2); border:1px solid var(--border); color: var(--text-dim);
@@ -1025,7 +1034,7 @@ body::before,body::after{
 body::before{ width:280px;height:280px; background:var(--glow-a); top:-6%;left:-6%; }
 body::after{ width:240px;height:240px; background:var(--glow-b); bottom:-8%;right:-6%; animation-delay:-6s; }
 #loadingScreen{ background:var(--bg); }
-#authWrap,#appWrap{ position:relative; z-index:1; }
+#topbar,#bottomNav,#authWrap,#appWrap{ position:relative; z-index:1; }
 #chatDetail,#pickerOverlay,#msgActionOverlay,#avatarLightbox{ z-index:9999; }
 
 #authWrap{ overflow:hidden; }
@@ -2623,18 +2632,6 @@ body{
     const wait = Math.max(0, SPLASH_MIN_MS - (Date.now() - splashShownAt));
     setTimeout(() => $('loadingScreen').classList.add('fadeOut'), wait);
   }
-  // Header (topbar) haqiqiy balandligini o'lchab, .searchRow uchun to'g'ri joyni ta'minlaydi.
-  // Qattiq kod bilan yozilgan piksel (top:61px) turli qurilma/brauzerlarda header balandligi
-  // farq qilishi sababli qidiruv qatorini header ustiga tushirib qo'yayotgan edi.
-  function syncTopbarHeightVar(){
-    const tb = $('topbar');
-    if (!tb || tb.classList.contains('hidden')) return;
-    const h = tb.getBoundingClientRect().height;
-    if (h > 0) document.documentElement.style.setProperty('--topbar-h', h + 'px');
-  }
-  window.addEventListener('resize', syncTopbarHeightVar);
-  window.addEventListener('orientationchange', () => setTimeout(syncTopbarHeightVar, 200));
-  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(syncTopbarHeightVar).catch(()=>{}); }
   function showScreen(name){
     hideSplash();
     $('topbar').classList.toggle('hidden', name==='auth');
@@ -2642,7 +2639,6 @@ body{
     $('authWrap').classList.toggle('hidden', name!=='auth');
     $('appWrap').classList.toggle('hidden', name!=='app');
     if (name === 'auth') { $('profileView').classList.add('hidden'); }
-    if (name !== 'auth') requestAnimationFrame(() => requestAnimationFrame(syncTopbarHeightVar));
   }
 
   // ---------- Nav tab almashtirish (Chatlar / Kontaktlar / Profil / Sozlamalar) ----------
@@ -2675,7 +2671,6 @@ body{
 
     if (tab === 'contacts') { openContactsTab(); }
     if (tab === 'circles') { renderCirclesHome(); }
-    requestAnimationFrame(() => requestAnimationFrame(syncTopbarHeightVar));
   }
   $('tabChatsBtn').addEventListener('click', () => showTab('chats'));
   $('tabCirclesBtn').addEventListener('click', () => showTab('circles'));
@@ -7229,6 +7224,8 @@ body.overlayActive #pickerOverlay {
   const d=document.createElement('div'); d.className='visionOrb'; d.id=id; wrap.prepend(d);
  });
  const card=document.getElementById('authCard');
+ // Faqat sichqonchali (PC) qurilmalarda ishlaydi — telefon/planshetda foydasiz va tebranishga sabab bo'ladi
+ if(!window.matchMedia('(pointer: fine)').matches) return;
  wrap.addEventListener('mousemove',e=>{
   const x=(e.clientX/innerWidth-.5)*10;
   const y=(e.clientY/innerHeight-.5)*10;
@@ -7242,7 +7239,8 @@ body.overlayActive #pickerOverlay {
 
 <script>
 (()=>{
- const root=document.body;
+ // Faqat sichqonchali (PC) qurilmalarda ishlaydi — teginish (mobil) ekranlarda o'chirilgan
+ if(!window.matchMedia('(pointer: fine)').matches) return;
  let x=0,y=0;
  window.addEventListener('pointermove',e=>{
   x=(e.clientX/innerWidth-.5)*2;
@@ -7416,6 +7414,63 @@ body.overlayActive #pickerOverlay {
 html[data-theme="light"] #settingsProfileRow{
   background: linear-gradient(135deg, rgba(99,91,255,0.10), rgba(76,124,255,0.06) 55%, #fff 100%) !important;
 }
+</style>
+
+<!-- =========================================================================
+     QURILMAGA MOSLASHISH (PC vs Telefon) — YAKUNIY QATLAM
+     `.is-touch` / `.is-desktop` klasslari <html> elementiga sahifa yuklanishi
+     bilan avvaldan qo'yiladi (yuqoridagi birinchi <script> qarang).
+     ========================================================================= -->
+<style>
+  /* ---------- Teginuvchi ekranlar (telefon/planshet): "yopishib qolgan" hover holatini bartaraf etish ----------
+     Sichqoncha bo'lmagan qurilmalarda :hover bosilgandan keyin ham faol bo'lib qolishi mumkin.
+     Shu sabab teginish qurilmalarida hover-asosli effektlarni bekor qilamiz; :active bilan bosilganini his qilish davom etadi. */
+  html.is-touch .chatRow:hover,
+  html.is-touch .pickerRow:hover,
+  html.is-touch .settingsRow:hover,
+  html.is-touch #settingsProfileRow:hover,
+  html.is-touch .navTab:hover,
+  html.is-touch .iconBtn:hover,
+  html.is-touch .chip:hover,
+  html.is-touch .ghostBtn:hover,
+  html.is-touch .composerBtn:hover,
+  html.is-touch #sendMsgBtn:hover:not(:disabled),
+  html.is-touch .primaryBtn:hover,
+  html.is-touch .socialBtn:hover,
+  html.is-touch #openPremiumBtn:hover {
+    transform: none !important;
+    box-shadow: revert !important;
+    filter: none !important;
+    background: revert !important;
+  }
+  html.is-touch .chatRow:hover .chatAvatar,
+  html.is-touch .pickerRow:hover .pickerAvatar {
+    transform: none !important;
+  }
+  html.is-touch .settingsRow:hover .chevron {
+    transform: none !important;
+  }
+  /* Teginish qurilmalarida tugmalar biroz kattaroq bo'lib, barmoq bilan bosish qulayroq bo'ladi */
+  html.is-touch .composerBtn,
+  html.is-touch #sendMsgBtn { width: 40px; height: 40px; min-width: 40px; }
+  html.is-touch .navTab .navTabIconWrap { min-width: 40px; min-height: 40px; }
+
+  /* ---------- Faqat PC (sichqoncha) uchun: keng monitorlarda kontent cho'zilib ketmasligi ---------- */
+  @media (min-width: 1600px) {
+    html.is-desktop body { grid-template-columns: 80px minmax(340px, 460px) 1fr; }
+    html.is-desktop #chatDetail { max-width: 1180px; margin: 0 auto; width: 100%; }
+    html.is-desktop #chatDetailPlaceholder { max-width: 1180px; margin: 0 auto; }
+  }
+
+  /* ---------- Faqat PC uchun: klaviatura fokusi ko'rinishini yaxshilash (teginishda kerak emas) ---------- */
+  html.is-desktop button:focus-visible,
+  html.is-desktop a:focus-visible,
+  html.is-desktop input:focus-visible,
+  html.is-desktop textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  html.is-touch *:focus-visible { outline: none; }
 </style>
 </body>
 </html>
